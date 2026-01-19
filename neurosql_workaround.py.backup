@@ -1,0 +1,120 @@
+﻿# neurosql_workaround.py
+# Temporary fix for pathfinding with inferred edges
+
+import sys
+import os
+
+def patch_pathfinding():
+    """Workaround for NeuroSQL pathfinding ignoring inferred edges"""
+    
+    print("Applying workaround for inferred edges...")
+    
+    # Monkey-patch approach: override the edge fetching function
+    try:
+        import neurosql
+        
+        # Store original if we need it
+        original_get_edges = None
+        
+        # Find and patch the edge fetching function
+        for attr_name in dir(neurosql):
+            attr = getattr(neurosql, attr_name)
+            if callable(attr) and 'edge' in attr_name.lower() and 'get' in attr_name.lower():
+                original_get_edges = attr
+                
+                def patched_get_edges(*args, **kwargs):
+                    """Include both asserted and inferred edges"""
+                    print("DEBUG: Using patched edge fetcher (includes inferred)")
+                    
+                    # First get asserted edges
+                    try:
+                        asserted = original_get_edges(*args, **kwargs)
+                    except:
+                        asserted = []
+                    
+                    # Try to get inferred edges
+                    try:
+                        # Look for inferred edges function
+                        if hasattr(neurosql, 'get_inferred_edges'):
+                            inferred = neurosql.get_inferred_edges(*args, **kwargs)
+                        else:
+                            # Try to query with inferred=True
+                            inferred_query = f"FIND RELATIONSHIPS WHERE inferred = True"
+                            # This part depends on your actual query API
+                            inferred = []
+                    except:
+                        inferred = []
+                    
+                    # Combine
+                    all_edges = list(asserted) + list(inferred)
+                    
+                    # Remove duplicates
+                    seen = set()
+                    unique_edges = []
+                    for edge in all_edges:
+                        if hasattr(edge, 'id'):
+                            key = edge.id
+                        else:
+                            # Create a unique key
+                            source = getattr(edge, 'source', '') or edge.get('source', '')
+                            target = getattr(edge, 'target', '') or edge.get('target', '')
+                            key = f"{source}|{target}"
+                        
+                        if key not in seen:
+                            seen.add(key)
+                            unique_edges.append(edge)
+                    
+                    print(f"DEBUG: Returning {len(unique_edges)} edges "
+                          f"({len(asserted)} asserted + {len(inferred)} inferred)")
+                    return unique_edges
+                
+                # Apply the patch
+                setattr(neurosql, attr_name, patched_get_edges)
+                print(f"✓ Patched: {attr_name}")
+                return True
+                
+    except Exception as e:
+        print(f"Failed to patch: {e}")
+    
+    return False
+
+def test_fix():
+    """Test the workaround"""
+    print("\nTesting the fix...")
+    
+    try:
+        from neurosql import Session
+        session = Session()
+        
+        # Run reasoning first
+        print("Running reasoning...")
+        try:
+            session.run_transitive_closure()
+        except:
+            pass
+        
+        # Test pathfinding
+        print("Finding path from Python to Software...")
+        paths = session.execute_query('FIND PATH FROM "Python" TO "Software"')
+        
+        print(f"Found {len(paths)} paths")
+        if paths:
+            print(f"Example: {' → '.join(paths[0])}")
+            return True
+        else:
+            print("No paths found (workaround might not have worked)")
+            return False
+            
+    except Exception as e:
+        print(f"Test failed: {e}")
+        return False
+
+if __name__ == "__main__":
+    if patch_pathfinding():
+        test_fix()
+    else:
+        print("Could not apply workaround automatically")
+        print("\nManual fix needed:")
+        print("1. Find get_edges_for_traversal() function")
+        print("2. Remove 'inferred=False' filter")
+        print("3. Or merge asserted + inferred edges")

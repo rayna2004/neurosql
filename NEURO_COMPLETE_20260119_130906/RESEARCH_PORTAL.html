@@ -1,0 +1,138 @@
+﻿
+<!DOCTYPE html>
+<html>
+<head>
+    <title>🧠 Neuroscience Research Portal</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', system-ui; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
+        .portal-container { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
+        .header { text-align: center; margin-bottom: 50px; }
+        .header h1 { color: white; font-size: 48px; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+        .header p { color: rgba(255,255,255,0.9); font-size: 18px; }
+        .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 30px; }
+        .card { background: white; border-radius: 20px; padding: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); transition: all 0.3s; }
+        .card:hover { transform: translateY(-10px); box-shadow: 0 30px 60px rgba(0,0,0,0.2); }
+        .card-icon { font-size: 48px; margin-bottom: 20px; }
+        .card h2 { color: #2d3748; margin-bottom: 15px; font-size: 24px; }
+        .card p { color: #718096; line-height: 1.6; margin-bottom: 20px; }
+        .btn { display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 25px; border-radius: 50px; text-decoration: none; font-weight: 600; transition: all 0.3s; }
+        .btn:hover { transform: scale(1.05); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+        .file-list { list-style: none; margin-top: 15px; }
+        .file-list li { padding: 8px 0; border-bottom: 1px solid #e2e8f0; }
+        .file-list li:last-child { border-bottom: none; }
+        .file-list a { color: #4299e1; text-decoration: none; }
+        .file-list a:hover { text-decoration: underline; }
+        .stats-bar { background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius: 15px; padding: 20px; margin: 30px 0; display: flex; justify-content: space-around; flex-wrap: wrap; }
+        .stat { text-align: center; color: white; }
+        .stat-value { font-size: 32px; font-weight: bold; }
+        .stat-label { font-size: 14px; opacity: 0.9; }
+        .footer { text-align: center; margin-top: 50px; color: rgba(255,255,255,0.7); font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="portal-container">
+        <div class="header">
+            <h1>🧠 Neuroscience Research Portal</h1>
+            <p>Complete Research Infrastructure | Project: NEURO_COMPLETE_20260119_130906</p>
+        </div>
+
+        <div class="stats-bar">
+            <div class="stat">
+                <div class="stat-value">8</div>
+                <div class="stat-label">Research Hypotheses</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">.97M</div>
+                <div class="stat-label">Total Budget</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">2</div>
+                <div class="stat-label">High Confidence</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">4</div>
+                <div class="stat-label">Dashboards</div>
+            </div>
+        </div>
+
+        <div class="cards-grid">
+            <div class="card">
+                <div class="card-icon">📊</div>
+                <h2>Interactive Dashboards</h2>
+                <p>Visualize your research data with multiple dashboard options:</p>
+                <ul class="file-list">
+                    <li><a href="ROBUST_DASHBOARD.html" target="_blank">🚀 <strong>Robust Dashboard</strong> (Recommended)</a></li>
+                    <li><a href="dashboard.html" target="_blank">📈 Original Dashboard</a></li>
+                    <li><a href="working_dashboard.html" target="_blank">🔬 Working Dashboard</a></li>
+                    <li><a href="dashboard_with_filters.html" target="_blank">🎛️ Dashboard with Filters</a></li>
+                    <li><a href="simple_enhanced.html" target="_blank">🎨 Simple Enhanced View</a></li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <div class="card-icon">🔬</div>
+                <h2>Research Data</h2>
+                <p>Download and analyze your research datasets:</p>
+                <ul class="file-list">
+                    <li><a href="data/research_hypotheses.csv" download>📄 <strong>Research Hypotheses</strong> (8 entries)</a></li>
+                    <li><a href="data/experiment_designs.csv" download>🧪 Experiment Designs (6 studies)</a></li>
+                    <li><a href="data/grant_components.csv" download>💰 Grant Components (3 proposals)</a></li>
+                    <li><a href="data/neuroscience_kb.csv" download>🧠 Neuroscience Knowledge Base</a></li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <div class="card-icon">📋</div>
+                <h2>Analysis & Reports</h2>
+                <p>Review comprehensive analysis and planning documents:</p>
+                <ul class="file-list">
+                    <li><a href="analysis/research_roadmap.txt" target="_blank">🗺️ Research Roadmap</a></li>
+                    <li><a href="project_summary.txt" target="_blank">📊 Project Summary</a></li>
+                    <li><a href="analysis/statistics.csv" download>📈 Statistics CSV</a></li>
+                    <li><a href="#" onclick="alert('Open PowerShell and run: Import-Csv .\\data\\research_hypotheses.csv | Format-Table')">💻 PowerShell Analysis</a></li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <div class="card-icon">🚀</div>
+                <h2>Next Steps</h2>
+                <p>Immediate actions for your research project:</p>
+                <ol style="color: #718096; padding-left: 20px; line-height: 1.8;">
+                    <li><strong>Review</strong> top hypotheses (Confidence ≥0.8)</li>
+                    <li><strong>Analyze</strong> experiment designs for feasibility</li>
+                    <li><strong>Adapt</strong> grant components for funding applications</li>
+                    <li><strong>Validate</strong> with literature review</li>
+                    <li><strong>Consult</strong> with neuroscience faculty</li>
+                </ol>
+                <a href="ROBUST_DASHBOARD.html" class="btn" style="margin-top: 15px;">Launch Robust Dashboard</a>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>🧬 Generated by Complete Neuroscience Research Infrastructure v1.0</p>
+            <p>For scientific validation, consult with neuroscience faculty and statisticians.</p>
+            <p style="margin-top: 10px;">Generated on January 19, 2026 at 13:47</p>
+        </div>
+    </div>
+
+    <script>
+        // Add some interactivity
+        document.querySelectorAll('.card').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.background = 'linear-gradient(135deg, #fdfcfb 0%, #f5f7fa 100%)';
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.background = 'white';
+            });
+        });
+
+        // Update stats in real-time
+        fetch('analysis/statistics.csv')
+            .then(response => response.text())
+            .then(data => {
+                console.log('Statistics loaded:', data);
+            });
+    </script>
+</body>
+</html>

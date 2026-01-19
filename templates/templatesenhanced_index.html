@@ -1,0 +1,1166 @@
+<!-- templates/enhanced_index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeuroSQL Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/cytoscape/dist/cytoscape.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4a6fa5;
+            --secondary-color: #166088;
+            --accent-color: #4fc3a1;
+            --light-bg: #f8f9fa;
+            --dark-bg: #343a40;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+        }
+        
+        .dashboard-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 1.5rem;
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: transform 0.2s;
+            margin-bottom: 1rem;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+        }
+        
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .stat-label {
+            color: #6c757d;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        #cy {
+            width: 100%;
+            height: 600px;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            background: white;
+        }
+        
+        .nav-tabs .nav-link {
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+        
+        .nav-tabs .nav-link.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+        
+        .search-box {
+            position: relative;
+        }
+        
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 0 0 4px 4px;
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .search-result-item {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+        }
+        
+        .search-result-item:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .concept-badge {
+            background-color: var(--accent-color);
+            color: white;
+            font-size: 0.8rem;
+        }
+        
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        .highlight-node {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 0.8; }
+            50% { opacity: 1; }
+            100% { opacity: 0.8; }
+        }
+        
+        .modal-lg {
+            max-width: 90%;
+        }
+        
+        .graph-controls {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark dashboard-header">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <h3><i class="bi bi-diagram-3"></i> NeuroSQL Dashboard</h3>
+            </a>
+            <div class="d-flex">
+                <button class="btn btn-outline-light me-2" onclick="exportGraph()">
+                    <i class="bi bi-download"></i> Export
+                </button>
+                <button class="btn btn-outline-light" onclick="showImportModal()">
+                    <i class="bi bi-upload"></i> Import
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid mt-4">
+        <div class="row">
+            <!-- Left Sidebar - Stats and Controls -->
+            <div class="col-lg-3">
+                <!-- Stats Cards -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="stat-card">
+                            <div class="stat-value" id="conceptsCount">0</div>
+                            <div class="stat-label">Concepts</div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="stat-card">
+                            <div class="stat-value" id="relationshipsCount">0</div>
+                            <div class="stat-label">Relationships</div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="stat-card">
+                            <div class="stat-value" id="cacheHitRate">0%</div>
+                            <div class="stat-label">Cache Hit Rate</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Search -->
+                <div class="stat-card mt-3">
+                    <h6>Search Concepts</h6>
+                    <div class="search-box">
+                        <input type="text" class="form-control" id="searchInput" 
+                               placeholder="Search by name or attributes..." 
+                               onkeyup="searchConcepts()">
+                        <div class="search-results" id="searchResults"></div>
+                    </div>
+                    
+                    <div class="mt-3">
+                        <label class="form-label">Filter by Domain:</label>
+                        <select class="form-select" id="domainFilter" onchange="applyFilters()">
+                            <option value="">All Domains</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mt-3">
+                        <label class="form-label">Abstraction Level:</label>
+                        <input type="range" class="form-range" id="levelRange" min="0" max="3" 
+                               oninput="document.getElementById('levelValue').textContent = this.value; applyFilters()">
+                        <div class="d-flex justify-content-between">
+                            <small>0 (Concrete)</small>
+                            <small id="levelValue">0</small>
+                            <small>3 (Abstract)</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Graph Controls -->
+                <div class="stat-card mt-3">
+                    <h6>Graph Controls</h6>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Layout:</label>
+                        <select class="form-select" id="layoutSelect" onchange="updateVisualization()">
+                            <option value="cose">Force-Directed</option>
+                            <option value="grid">Grid</option>
+                            <option value="circle">Circle</option>
+                            <option value="concentric">Concentric</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Relationship Weight Threshold:</label>
+                        <input type="range" class="form-range" id="weightThreshold" min="0" max="1" step="0.1"
+                               oninput="document.getElementById('weightValue').textContent = this.value; applyFilters()">
+                        <div class="d-flex justify-content-between">
+                            <small>0.0</small>
+                            <small id="weightValue">0.5</small>
+                            <small>1.0</small>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-primary w-100 mb-2" onclick="runAnalysis('centrality')">
+                        <i class="bi bi-graph-up"></i> Analyze Centrality
+                    </button>
+                    
+                    <button class="btn btn-outline-primary w-100" onclick="runAnalysis('communities')">
+                        <i class="bi bi-people"></i> Detect Communities
+                    </button>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-lg-9">
+                <!-- Tabs -->
+                <ul class="nav nav-tabs" id="mainTabs">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-bs-toggle="tab" href="#graphView">
+                            <i class="bi bi-diagram-3"></i> Graph View
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#analyticsView">
+                            <i class="bi bi-bar-chart"></i> Analytics
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#queryView">
+                            <i class="bi bi-search"></i> Query Tool
+                        </a>
+                    </li>
+                </ul>
+
+                <!-- Tab Content -->
+                <div class="tab-content mt-3">
+                    <!-- Graph View Tab -->
+                    <div class="tab-pane fade show active" id="graphView">
+                        <div class="graph-controls">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <button class="btn btn-outline-secondary btn-sm" onclick="resetView()">
+                                        <i class="bi bi-arrow-clockwise"></i> Reset View
+                                    </button>
+                                    <button class="btn btn-outline-secondary btn-sm" onclick="fitGraph()">
+                                        <i class="bi bi-fullscreen"></i> Fit to View
+                                    </button>
+                                    <button class="btn btn-outline-secondary btn-sm" onclick="exportPNG()">
+                                        <i class="bi bi-image"></i> Export PNG
+                                    </button>
+                                </div>
+                                <div class="col-md-6 text-end">
+                                    <span id="selectedConcept" class="badge bg-primary">No concept selected</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="cy"></div>
+                    </div>
+
+                    <!-- Analytics Tab -->
+                    <div class="tab-pane fade" id="analyticsView">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="stat-card">
+                                    <h5>Centrality Analysis</h5>
+                                    <canvas id="centralityChart" height="200"></canvas>
+                                    <div id="centralityResults" class="mt-3"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="stat-card">
+                                    <h5>Community Detection</h5>
+                                    <canvas id="communityChart" height="200"></canvas>
+                                    <div id="communityResults" class="mt-3"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <div class="stat-card">
+                                    <h5>Performance Metrics</h5>
+                                    <canvas id="performanceChart" height="100"></canvas>
+                                    <button class="btn btn-sm btn-outline-primary mt-2" onclick="refreshPerformance()">
+                                        Refresh Metrics
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Query Tool Tab -->
+                    <div class="tab-pane fade" id="queryView">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="stat-card">
+                                    <h5>Traversal Queries</h5>
+                                    <div class="mb-3">
+                                        <label class="form-label">Start Concept:</label>
+                                        <input type="text" class="form-control" id="startConcept" 
+                                               placeholder="Enter concept name">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Traversal Type:</label>
+                                        <select class="form-select" id="traversalType">
+                                            <option value="bfs">BFS (Breadth-First)</option>
+                                            <option value="dfs">DFS (Depth-First)</option>
+                                            <option value="shortest">Shortest Path</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3" id="endConceptContainer" style="display: none;">
+                                        <label class="form-label">End Concept (for shortest path):</label>
+                                        <input type="text" class="form-control" id="endConcept" 
+                                               placeholder="Enter target concept">
+                                    </div>
+                                    <button class="btn btn-primary w-100" onclick="runTraversal()">
+                                        <i class="bi bi-play"></i> Run Query
+                                    </button>
+                                    <div id="traversalResults" class="mt-3"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="stat-card">
+                                    <h5>Relationship Suggestions</h5>
+                                    <div class="mb-3">
+                                        <label class="form-label">Concept to Analyze:</label>
+                                        <input type="text" class="form-control" id="suggestionConcept" 
+                                               placeholder="Enter concept name">
+                                    </div>
+                                    <button class="btn btn-outline-primary w-100" onclick="getSuggestions()">
+                                        <i class="bi bi-lightbulb"></i> Get Suggestions
+                                    </button>
+                                    <div id="suggestionResults" class="mt-3"></div>
+                                </div>
+                                
+                                <div class="stat-card mt-3">
+                                    <h5>Custom Visualization</h5>
+                                    <button class="btn btn-primary w-100" onclick="generateCustomViz()">
+                                        <i class="bi bi-magic"></i> Generate Custom View
+                                    </button>
+                                    <div id="customVizContainer" class="mt-3 text-center"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Modal -->
+    <div class="modal fade" id="loadingModal" tabindex="-1">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-body text-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2" id="loadingMessage">Processing...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Import Modal -->
+    <div class="modal fade" id="importModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Import Graph Data</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Import Format:</label>
+                        <select class="form-select" id="importFormat">
+                            <option value="json">JSON</option>
+                            <option value="csv">CSV</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Select File:</label>
+                        <input type="file" class="form-control" id="importFile">
+                    </div>
+                    <div class="alert alert-info">
+                        <small>Note: Importing will replace the current graph.</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="importGraph()">Import</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/cytoscape-cose-bilkent@4.1.0/cytoscape-cose-bilkent.min.js"></script>
+    
+    <script>
+        // Global variables
+        let cy;
+        let selectedConcept = null;
+        let conceptsData = [];
+        let relationshipsData = [];
+        let centralityChart = null;
+        let communityChart = null;
+        let performanceChart = null;
+        
+        // Initialize Cytoscape
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeCytoscape();
+            loadStats();
+            loadDomains();
+            loadGraphData();
+            
+            // Listen for tab changes
+            document.getElementById('traversalType').addEventListener('change', function() {
+                document.getElementById('endConceptContainer').style.display = 
+                    this.value === 'shortest' ? 'block' : 'none';
+            });
+        });
+        
+        function initializeCytoscape() {
+            // Register layout extensions
+            cytoscape.use(require('cytoscape-cose-bilkent'));
+            
+            cy = cytoscape({
+                container: document.getElementById('cy'),
+                elements: [],
+                style: [
+                    {
+                        selector: 'node',
+                        style: {
+                            'background-color': '#4a6fa5',
+                            'label': 'data(id)',
+                            'text-valign': 'center',
+                            'text-halign': 'center',
+                            'font-size': '10px',
+                            'width': 'label',
+                            'height': 'label',
+                            'padding': '8px',
+                            'border-width': '2px',
+                            'border-color': '#ffffff'
+                        }
+                    },
+                    {
+                        selector: 'node[abstraction_level="0"]',
+                        style: {
+                            'background-color': '#4fc3a1',
+                            'shape': 'ellipse'
+                        }
+                    },
+                    {
+                        selector: 'node[abstraction_level="1"]',
+                        style: {
+                            'background-color': '#4a6fa5',
+                            'shape': 'round-rectangle'
+                        }
+                    },
+                    {
+                        selector: 'node[abstraction_level="2"]',
+                        style: {
+                            'background-color': '#166088',
+                            'shape': 'diamond'
+                        }
+                    },
+                    {
+                        selector: 'node[abstraction_level="3"]',
+                        style: {
+                            'background-color': '#0d2d4c',
+                            'shape': 'triangle'
+                        }
+                    },
+                    {
+                        selector: 'node.highlighted',
+                        style: {
+                            'border-color': '#ff6b6b',
+                            'border-width': '4px'
+                        }
+                    },
+                    {
+                        selector: 'edge',
+                        style: {
+                            'width': 'mapData(weight, 0, 1, 1, 5)',
+                            'line-color': 'mapData(weight, 0, 1, #cccccc, #166088)',
+                            'target-arrow-color': 'mapData(weight, 0, 1, #cccccc, #166088)',
+                            'target-arrow-shape': 'triangle',
+                            'curve-style': 'bezier',
+                            'label': 'data(type)',
+                            'font-size': '8px',
+                            'text-rotation': 'autorotate'
+                        }
+                    }
+                ],
+                layout: {
+                    name: 'cose-bilkent',
+                    animate: true,
+                    animationDuration: 1000,
+                    idealEdgeLength: 100,
+                    nodeOverlap: 20,
+                    refresh: 20,
+                    fit: true,
+                    padding: 30,
+                    randomize: false,
+                    componentSpacing: 100,
+                    nodeRepulsion: 400000,
+                    edgeElasticity: 100,
+                    nestingFactor: 5,
+                    gravity: 80,
+                    numIter: 1000,
+                    initialTemp: 200,
+                    coolingFactor: 0.95,
+                    minTemp: 1.0
+                }
+            });
+            
+            // Add event listeners
+            cy.on('tap', 'node', function(evt) {
+                const node = evt.target;
+                selectedConcept = node.id();
+                document.getElementById('selectedConcept').textContent = `Selected: ${selectedConcept}`;
+                
+                // Highlight connected nodes
+                cy.elements().removeClass('highlighted');
+                node.addClass('highlighted');
+                node.neighborhood().addClass('highlighted');
+                
+                // Update suggestion input
+                document.getElementById('suggestionConcept').value = selectedConcept;
+            });
+            
+            cy.on('tap', function(evt) {
+                if (evt.target === cy) {
+                    cy.elements().removeClass('highlighted');
+                    selectedConcept = null;
+                    document.getElementById('selectedConcept').textContent = 'No concept selected';
+                }
+            });
+        }
+        
+        function loadStats() {
+            axios.get('/api/stats')
+                .then(response => {
+                    const stats = response.data;
+                    document.getElementById('conceptsCount').textContent = stats.concepts;
+                    document.getElementById('relationshipsCount').textContent = stats.relationships;
+                    document.getElementById('cacheHitRate').textContent = 
+                        (stats.cache_hit_rate * 100).toFixed(1) + '%';
+                })
+                .catch(error => {
+                    console.error('Error loading stats:', error);
+                });
+        }
+        
+        function loadDomains() {
+            axios.get('/api/search?q=')
+                .then(response => {
+                    const domains = new Set();
+                    response.data.results.forEach(concept => {
+                        domains.add(concept.domain);
+                    });
+                    
+                    const select = document.getElementById('domainFilter');
+                    domains.forEach(domain => {
+                        const option = document.createElement('option');
+                        option.value = domain;
+                        option.textContent = domain;
+                        select.appendChild(option);
+                    });
+                });
+        }
+        
+        function loadGraphData() {
+            showLoading('Loading graph data...');
+            
+            Promise.all([
+                axios.get('/api/concepts'),
+                axios.get('/api/relationships')
+            ]).then(([conceptsRes, relationshipsRes]) => {
+                conceptsData = conceptsRes.data.concepts;
+                relationshipsData = relationshipsRes.data.relationships;
+                
+                // Add nodes to cytoscape
+                conceptsData.forEach(concept => {
+                    cy.add({
+                        data: {
+                            id: concept.name,
+                            abstraction_level: concept.abstraction_level,
+                            domain: concept.domain
+                        }
+                    });
+                });
+                
+                // Add edges to cytoscape
+                relationshipsData.forEach(rel => {
+                    cy.add({
+                        data: {
+                            id: `${rel.from}-${rel.to}`,
+                            source: rel.from,
+                            target: rel.to,
+                            type: rel.type,
+                            weight: rel.weight
+                        }
+                    });
+                });
+                
+                cy.layout({ name: 'cose-bilkent' }).run();
+                hideLoading();
+                
+            }).catch(error => {
+                console.error('Error loading graph data:', error);
+                hideLoading();
+                alert('Error loading graph data. Please refresh the page.');
+            });
+        }
+        
+        function searchConcepts() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const domain = document.getElementById('domainFilter').value;
+            const level = parseInt(document.getElementById('levelRange').value);
+            
+            if (query.length < 2) {
+                document.getElementById('searchResults').style.display = 'none';
+                return;
+            }
+            
+            axios.get(`/api/search?q=${query}&domain=${domain}&min_level=0&max_level=${level}`)
+                .then(response => {
+                    const results = response.data.results;
+                    const container = document.getElementById('searchResults');
+                    
+                    if (results.length === 0) {
+                        container.innerHTML = '<div class="search-result-item">No results found</div>';
+                    } else {
+                        container.innerHTML = results.map(concept => `
+                            <div class="search-result-item" onclick="selectConcept('${concept.name}')">
+                                <strong>${concept.name}</strong>
+                                <div class="text-muted small">
+                                    ${concept.domain} • Level ${concept.level}
+                                </div>
+                            </div>
+                        `).join('');
+                    }
+                    
+                    container.style.display = 'block';
+                });
+        }
+        
+        function selectConcept(conceptName) {
+            document.getElementById('searchResults').style.display = 'none';
+            document.getElementById('searchInput').value = conceptName;
+            
+            // Find and select the node in cytoscape
+            const node = cy.getElementById(conceptName);
+            if (node.length > 0) {
+                cy.animate({
+                    center: { eles: node },
+                    zoom: 2
+                });
+                
+                cy.elements().removeClass('highlighted');
+                node.addClass('highlighted');
+                selectedConcept = conceptName;
+                document.getElementById('selectedConcept').textContent = `Selected: ${selectedConcept}`;
+            }
+        }
+        
+        function applyFilters() {
+            const domain = document.getElementById('domainFilter').value;
+            const level = parseInt(document.getElementById('levelRange').value);
+            const minWeight = parseFloat(document.getElementById('weightThreshold').value);
+            
+            // Hide nodes that don't match filters
+            cy.nodes().forEach(node => {
+                const nodeData = node.data();
+                const hide = 
+                    (domain && nodeData.domain !== domain) ||
+                    (nodeData.abstraction_level > level);
+                
+                node.style('display', hide ? 'none' : '');
+            });
+            
+            // Hide edges below weight threshold
+            cy.edges().forEach(edge => {
+                const weight = edge.data('weight') || 0;
+                edge.style('display', weight < minWeight ? 'none' : '');
+            });
+        }
+        
+        function updateVisualization() {
+            const layout = document.getElementById('layoutSelect').value;
+            
+            cy.layout({
+                name: layout,
+                animate: true,
+                animationDuration: 1000
+            }).run();
+        }
+        
+        function resetView() {
+            cy.elements().removeClass('highlighted');
+            selectedConcept = null;
+            document.getElementById('selectedConcept').textContent = 'No concept selected';
+            
+            // Reset filters
+            document.getElementById('searchInput').value = '';
+            document.getElementById('domainFilter').value = '';
+            document.getElementById('levelRange').value = 0;
+            document.getElementById('weightThreshold').value = 0;
+            
+            // Show all elements
+            cy.elements().style('display', '');
+            
+            // Reset layout
+            cy.layout({ name: 'cose-bilkent', fit: true }).run();
+        }
+        
+        function fitGraph() {
+            cy.fit();
+        }
+        
+        function exportPNG() {
+            const png = cy.png({ full: true, bg: 'white' });
+            const link = document.createElement('a');
+            link.download = 'neurosql_graph.png';
+            link.href = png;
+            link.click();
+        }
+        
+        function runAnalysis(type) {
+            showLoading(`Running ${type} analysis...`);
+            
+            if (type === 'centrality') {
+                axios.get('/api/analytics/centrality')
+                    .then(response => {
+                        displayCentralityResults(response.data);
+                        hideLoading();
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        hideLoading();
+                    });
+            } else if (type === 'communities') {
+                axios.get('/api/analytics/communities')
+                    .then(response => {
+                        displayCommunityResults(response.data);
+                        hideLoading();
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        hideLoading();
+                    });
+            }
+        }
+        
+        function displayCentralityResults(data) {
+            const container = document.getElementById('centralityResults');
+            
+            let html = '<h6>Most Central Concepts:</h6><ol class="list-group list-group-numbered">';
+            data.top_central.forEach(item => {
+                html += `
+                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto">
+                            <div class="fw-bold">${item.concept}</div>
+                        </div>
+                        <span class="badge bg-primary rounded-pill">${item.score.toFixed(4)}</span>
+                    </li>
+                `;
+            });
+            html += '</ol>';
+            
+            container.innerHTML = html;
+            
+            // Update chart
+            if (centralityChart) {
+                centralityChart.destroy();
+            }
+            
+            const ctx = document.getElementById('centralityChart').getContext('2d');
+            centralityChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.top_central.map(item => item.concept),
+                    datasets: [{
+                        label: 'Centrality Score',
+                        data: data.top_central.map(item => item.score),
+                        backgroundColor: '#4a6fa5'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+        
+        function displayCommunityResults(data) {
+            if (data.error) {
+                document.getElementById('communityResults').innerHTML = 
+                    `<div class="alert alert-warning">${data.error}</div>`;
+                return;
+            }
+            
+            const container = document.getElementById('communityResults');
+            container.innerHTML = `
+                <h6>Community Analysis:</h6>
+                <p>Found ${data.total_communities} communities</p>
+                <p>Largest communities:</p>
+                <ul>
+                    ${data.largest_communities.map(c => 
+                        `<li>Community ${c.id}: ${c.size} concepts</li>`
+                    ).join('')}
+                </ul>
+            `;
+            
+            // Update chart
+            if (communityChart) {
+                communityChart.destroy();
+            }
+            
+            const ctx = document.getElementById('communityChart').getContext('2d');
+            const communities = Object.entries(data.community_distribution)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 10);
+            
+            communityChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: communities.map(c => `Community ${c[0]}`),
+                    datasets: [{
+                        data: communities.map(c => c[1]),
+                        backgroundColor: [
+                            '#4a6fa5', '#4fc3a1', '#166088', '#ff6b6b', 
+                            '#ffd93d', '#6bcf7f', '#a463bf', '#ff9a76'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'right' }
+                    }
+                }
+            });
+        }
+        
+        function runTraversal() {
+            const start = document.getElementById('startConcept').value;
+            const type = document.getElementById('traversalType').value;
+            const end = document.getElementById('endConcept').value;
+            
+            if (!start) {
+                alert('Please enter a start concept');
+                return;
+            }
+            
+            if (type === 'shortest' && !end) {
+                alert('Please enter an end concept for shortest path');
+                return;
+            }
+            
+            showLoading('Running traversal...');
+            
+            let url;
+            if (type === 'shortest') {
+                url = `/api/shortest-path?start=${start}&end=${end}`;
+            } else {
+                url = `/api/traverse/${type}?start=${start}&depth=3`;
+            }
+            
+            axios.get(url)
+                .then(response => {
+                    displayTraversalResults(response.data, type);
+                    hideLoading();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error running traversal. Please check the concept names.');
+                    hideLoading();
+                });
+        }
+        
+        function displayTraversalResults(data, type) {
+            const container = document.getElementById('traversalResults');
+            
+            if (type === 'shortest') {
+                const path = data.path || [];
+                if (path.length === 0) {
+                    container.innerHTML = '<div class="alert alert-warning">No path found</div>';
+                } else {
+                    container.innerHTML = `
+                        <div class="alert alert-success">
+                            <h6>Shortest Path Found:</h6>
+                            <p>${path.join(' → ')}</p>
+                            <p>Length: ${path.length - 1} steps</p>
+                        </div>
+                    `;
+                    
+                    // Highlight the path
+                    cy.elements().removeClass('highlighted');
+                    path.forEach(concept => {
+                        cy.getElementById(concept).addClass('highlighted');
+                    });
+                }
+            } else {
+                const traversal = data.traversal || [];
+                container.innerHTML = `
+                    <div class="alert alert-info">
+                        <h6>${type.toUpperCase()} Traversal:</h6>
+                        <p>Visited ${traversal.length} concepts</p>
+                        <p>Order: ${traversal.slice(0, 10).join(', ')}${traversal.length > 10 ? '...' : ''}</p>
+                    </div>
+                `;
+            }
+        }
+        
+        function getSuggestions() {
+            const concept = document.getElementById('suggestionConcept').value;
+            if (!concept) {
+                alert('Please enter a concept name');
+                return;
+            }
+            
+            showLoading('Finding suggestions...');
+            
+            axios.get(`/api/concept/suggest?concept=${concept}`)
+                .then(response => {
+                    displaySuggestions(response.data);
+                    hideLoading();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    hideLoading();
+                });
+        }
+        
+        function displaySuggestions(data) {
+            const container = document.getElementById('suggestionResults');
+            
+            if (!data.suggestions || data.suggestions.length === 0) {
+                container.innerHTML = '<div class="alert alert-warning">No suggestions found</div>';
+                return;
+            }
+            
+            let html = '<h6>Suggested Related Concepts:</h6><div class="list-group">';
+            data.suggestions.forEach(item => {
+                html += `
+                    <div class="list-group-item">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">${item.concept}</h6>
+                            <small class="text-muted">${item.similarity.toFixed(3)}</small>
+                        </div>
+                        <p class="mb-1">
+                            <span class="badge bg-secondary">${item.domain}</span>
+                            <span class="badge bg-info">Level ${item.level}</span>
+                        </p>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            
+            container.innerHTML = html;
+        }
+        
+        function generateCustomViz() {
+            const layout = document.getElementById('layoutSelect').value;
+            const minWeight = parseFloat(document.getElementById('weightThreshold').value);
+            const highlight = selectedConcept ? [selectedConcept] : [];
+            
+            showLoading('Generating custom visualization...');
+            
+            axios.post('/api/visualization/custom', {
+                layout: layout,
+                highlight: highlight,
+                min_weight: minWeight
+            })
+            .then(response => {
+                const container = document.getElementById('customVizContainer');
+                container.innerHTML = `
+                    <img src="data:image/png;base64,${response.data.image}" 
+                         class="img-fluid rounded" 
+                         alt="Custom Visualization">
+                    <div class="mt-2">
+                        <button class="btn btn-sm btn-outline-primary" 
+                                onclick="downloadCustomViz('${response.data.image}')">
+                            <i class="bi bi-download"></i> Download
+                        </button>
+                    </div>
+                `;
+                hideLoading();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                hideLoading();
+            });
+        }
+        
+        function downloadCustomViz(base64Image) {
+            const link = document.createElement('a');
+            link.download = 'neurosql_custom_viz.png';
+            link.href = `data:image/png;base64,${base64Image}`;
+            link.click();
+        }
+        
+        function exportGraph() {
+            const format = prompt('Enter export format (json, csv, or graphml):', 'json');
+            if (format && ['json', 'csv', 'graphml'].includes(format)) {
+                window.open(`/api/graph/export?format=${format}`, '_blank');
+            }
+        }
+        
+        function showImportModal() {
+            const modal = new bootstrap.Modal(document.getElementById('importModal'));
+            modal.show();
+        }
+        
+        function importGraph() {
+            const fileInput = document.getElementById('importFile');
+            const format = document.getElementById('importFormat').value;
+            
+            if (!fileInput.files[0]) {
+                alert('Please select a file');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            
+            showLoading('Importing graph data...');
+            
+            axios.post(`/api/graph/import?format=${format}`, formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            })
+            .then(response => {
+                hideLoading();
+                if (response.data.success) {
+                    alert('Import successful! Refreshing...');
+                    location.reload();
+                } else {
+                    alert('Import failed: ' + (response.data.error || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                hideLoading();
+                alert('Import failed: ' + error.message);
+            });
+        }
+        
+        function refreshPerformance() {
+            axios.get('/api/performance/monitor')
+                .then(response => {
+                    updatePerformanceChart(response.data);
+                })
+                .catch(console.error);
+        }
+        
+        function updatePerformanceChart(data) {
+            if (performanceChart) {
+                performanceChart.destroy();
+            }
+            
+            const ctx = document.getElementById('performanceChart').getContext('2d');
+            
+            // Extract data for chart
+            const labels = Object.keys(data).slice(0, 5);
+            const values = labels.map(label => data[label].avg_time || 0);
+            
+            performanceChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Average Execution Time (seconds)',
+                        data: values,
+                        borderColor: '#4a6fa5',
+                        backgroundColor: 'rgba(74, 111, 165, 0.1)',
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Time (seconds)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        function showLoading(message) {
+            document.getElementById('loadingMessage').textContent = message;
+            const modal = new bootstrap.Modal(document.getElementById('loadingModal'));
+            modal.show();
+        }
+        
+        function hideLoading() {
+            const modal = bootstrap.Modal.getInstance(document.getElementById('loadingModal'));
+            if (modal) {
+                modal.hide();
+            }
+        }
+        
+        // Close search results when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('.search-box')) {
+                document.getElementById('searchResults').style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,57 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Neuroscience Experiment Results</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <h1>Neuroscience Experiment: Memory vs Brain Activity</h1>
+    <div style="width: 800px;">
+        <canvas id="neuroChart"></canvas>
+    </div>
+    
+    <script>
+        const ctx = document.getElementById('neuroChart').getContext('2d');
+        const neuroChart = new Chart(ctx, {
+            type: 'scatter',
+            data: {
+                datasets: [{
+                    label: 'Control Group',
+                    data: [
+                        {x: 85, y: 0.70},
+                        {x: 88, y: 0.72},
+                        {x: 82, y: 0.68}
+                    ],
+                    backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                    borderColor: 'rgba(54, 162, 235, 1)'
+                }, {
+                    label: 'Experimental Group',
+                    data: [
+                        {x: 92, y: 0.85},
+                        {x: 95, y: 0.88},
+                        {x: 90, y: 0.82}
+                    ],
+                    backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                    borderColor: 'rgba(255, 99, 132, 1)'
+                }]
+            },
+            options: {
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Memory Score'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Brain Activity'
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

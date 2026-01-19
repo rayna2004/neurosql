@@ -1,0 +1,46 @@
+﻿NEUROSCIENCE HYPOTHESIS ANALYSIS REPORT
+========================================
+Project: .\NEURO_123748
+Analyzed: 01/19/2026 12:39:37
+
+SUMMARY STATISTICS
+------------------
+Total hypotheses: 5
+Average confidence: 0.85
+Unique brain regions: 3
+Experimental methods: 2
+
+HYPOTHESIS BREAKDOWN
+--------------------
+• HYP1: EEG of Hippocampus affects learning
+
+  Confidence: 0.92 | Region: Amygdala | Method: EEG
+
+• HYP2: Optogenetics of Amygdala affects emotion
+
+  Confidence: 0.79 | Region: Amygdala | Method: fMRI
+
+• HYP3: EEG of Prefrontal Cortex affects memory
+
+  Confidence: 0.76 | Region: Prefrontal Cortex | Method: EEG
+
+• HYP4: EEG of Hippocampus affects emotion
+
+  Confidence: 0.88 | Region: Hippocampus | Method: fMRI
+
+• HYP5: EEG of Hippocampus affects learning
+
+  Confidence: 0.91 | Region: Hippocampus | Method: EEG
+
+REGION ANALYSIS
+---------------
+• Hippocampus: 2 hypotheses
+• Amygdala: 2 hypotheses
+• Prefrontal Cortex: 1 hypotheses
+
+RECOMMENDATIONS
+---------------
+1. Focus on Hippocampus for follow-up studies
+2. Consider adding Prefrontal Cortex for comparison
+3. Design experiments to test top 2-3 hypotheses
+4. Prepare grant applications targeting these research directions

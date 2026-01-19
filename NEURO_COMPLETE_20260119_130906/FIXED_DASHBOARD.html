@@ -1,0 +1,212 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Neuroscience Dashboard - Fixed Version</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .header { background: #1a237e; color: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; }
+        .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin: 20px 0; }
+        .stat-box { background: white; padding: 15px; border-radius: 8px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .stat-value { font-size: 24px; font-weight: bold; color: #1a237e; margin: 0.5rem 0; }
+        .stat-label { color: #666; font-size: 14px; }
+        .hypothesis { background: white; margin: 10px 0; padding: 15px; border-radius: 8px; border-left: 5px solid #42a5f5; }
+        .confidence-high { border-left-color: #4caf50; }
+        .confidence-medium { border-left-color: #ff9800; }
+        .confidence-low { border-left-color: #f44336; }
+        .badge { display: inline-block; padding: 3px 8px; border-radius: 12px; font-size: 12px; margin-right: 5px; color: white; }
+        .badge-confidence { background: #4caf50; }
+        .badge-feasibility { background: #9c27b0; }
+        .badge-impact { background: #009688; }
+        .chart-container { background: white; padding: 20px; border-radius: 8px; margin: 20px 0; }
+        .filter-bar { background: #e3f2fd; padding: 15px; margin: 10px 0; border-radius: 5px; text-align: center; }
+        .filter-btn { margin: 5px; padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer; }
+        .btn-all { background: #2196f3; color: white; }
+        .btn-high { background: #4caf50; color: white; }
+        .btn-medium { background: #ff9800; color: white; }
+        .btn-low { background: #f44336; color: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧠 Fixed Neuroscience Research Dashboard</h1>
+            <p>Project: NEURO_COMPLETE_20260119_130906 | Generated: ' + $(Get-Date) + '</p>
+        </div>
+
+        <div class="stats">
+            <div class="stat-box">
+                <div class="stat-value">' + $stats.TotalHypotheses + '</div>
+                <div class="stat-label">Total Hypotheses</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value">' + $stats.AvgConfidence + '</div>
+                <div class="stat-label">Avg Confidence</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value">' + $stats.HighConfidence + '</div>
+                <div class="stat-label">High Confidence</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value">&#36;' + $stats.TotalBudgetRequired + 'M</div>
+                <div class="stat-label">Estimated Budget</div>
+            </div>
+        </div>
+
+        <div class="filter-bar">
+            <button class="filter-btn btn-all" onclick="filterByConfidence('all')">Show All (' + $hypotheses.Count + ')</button>
+            <button class="filter-btn btn-high" onclick="filterByConfidence('high')">High Confidence (≥0.8)</button>
+            <button class="filter-btn btn-medium" onclick="filterByConfidence('medium')">Medium (0.6-0.8)</button>
+            <button class="filter-btn btn-low" onclick="filterByConfidence('low')">Low Confidence (&lt;0.6)</button>
+        </div>
+
+        <div class="chart-container">
+            <h2>Confidence Distribution</h2>
+            <canvas id="confidenceChart" width="400" height="200"></canvas>
+        </div>
+
+        <h2>All Research Hypotheses</h2>
+        <div id="hypothesesContainer">            <div class="hypothesis ' + $confidenceClass + '" data-confidence="' + $confidenceLevel + '">
+                <h3>' + $hyp.Title + '</h3>
+                <p>' + $hyp.Statement + '</p>
+                <div>
+                    <span class="badge badge-confidence">Confidence: ' + $hyp.Confidence + '</span>
+                    <span class="badge badge-feasibility">' + $hyp.Feasibility + ' Feasibility</span>
+                    <span class="badge badge-impact">' + $hyp.Impact + ' Impact</span>
+                </div>
+                <p><small>ID: ' + $hyp.ID + ' | Method: ' + $hyp.Method + ' | Citations: ' + [math]::Round($hyp.Citations/1000,1) + 'K</small></p>
+            </div>            <div class="hypothesis ' + $confidenceClass + '" data-confidence="' + $confidenceLevel + '">
+                <h3>' + $hyp.Title + '</h3>
+                <p>' + $hyp.Statement + '</p>
+                <div>
+                    <span class="badge badge-confidence">Confidence: ' + $hyp.Confidence + '</span>
+                    <span class="badge badge-feasibility">' + $hyp.Feasibility + ' Feasibility</span>
+                    <span class="badge badge-impact">' + $hyp.Impact + ' Impact</span>
+                </div>
+                <p><small>ID: ' + $hyp.ID + ' | Method: ' + $hyp.Method + ' | Citations: ' + [math]::Round($hyp.Citations/1000,1) + 'K</small></p>
+            </div>            <div class="hypothesis ' + $confidenceClass + '" data-confidence="' + $confidenceLevel + '">
+                <h3>' + $hyp.Title + '</h3>
+                <p>' + $hyp.Statement + '</p>
+                <div>
+                    <span class="badge badge-confidence">Confidence: ' + $hyp.Confidence + '</span>
+                    <span class="badge badge-feasibility">' + $hyp.Feasibility + ' Feasibility</span>
+                    <span class="badge badge-impact">' + $hyp.Impact + ' Impact</span>
+                </div>
+                <p><small>ID: ' + $hyp.ID + ' | Method: ' + $hyp.Method + ' | Citations: ' + [math]::Round($hyp.Citations/1000,1) + 'K</small></p>
+            </div>            <div class="hypothesis ' + $confidenceClass + '" data-confidence="' + $confidenceLevel + '">
+                <h3>' + $hyp.Title + '</h3>
+                <p>' + $hyp.Statement + '</p>
+                <div>
+                    <span class="badge badge-confidence">Confidence: ' + $hyp.Confidence + '</span>
+                    <span class="badge badge-feasibility">' + $hyp.Feasibility + ' Feasibility</span>
+                    <span class="badge badge-impact">' + $hyp.Impact + ' Impact</span>
+                </div>
+                <p><small>ID: ' + $hyp.ID + ' | Method: ' + $hyp.Method + ' | Citations: ' + [math]::Round($hyp.Citations/1000,1) + 'K</small></p>
+            </div>            <div class="hypothesis ' + $confidenceClass + '" data-confidence="' + $confidenceLevel + '">
+                <h3>' + $hyp.Title + '</h3>
+                <p>' + $hyp.Statement + '</p>
+                <div>
+                    <span class="badge badge-confidence">Confidence: ' + $hyp.Confidence + '</span>
+                    <span class="badge badge-feasibility">' + $hyp.Feasibility + ' Feasibility</span>
+                    <span class="badge badge-impact">' + $hyp.Impact + ' Impact</span>
+                </div>
+                <p><small>ID: ' + $hyp.ID + ' | Method: ' + $hyp.Method + ' | Citations: ' + [math]::Round($hyp.Citations/1000,1) + 'K</small></p>
+            </div>            <div class="hypothesis ' + $confidenceClass + '" data-confidence="' + $confidenceLevel + '">
+                <h3>' + $hyp.Title + '</h3>
+                <p>' + $hyp.Statement + '</p>
+                <div>
+                    <span class="badge badge-confidence">Confidence: ' + $hyp.Confidence + '</span>
+                    <span class="badge badge-feasibility">' + $hyp.Feasibility + ' Feasibility</span>
+                    <span class="badge badge-impact">' + $hyp.Impact + ' Impact</span>
+                </div>
+                <p><small>ID: ' + $hyp.ID + ' | Method: ' + $hyp.Method + ' | Citations: ' + [math]::Round($hyp.Citations/1000,1) + 'K</small></p>
+            </div>            <div class="hypothesis ' + $confidenceClass + '" data-confidence="' + $confidenceLevel + '">
+                <h3>' + $hyp.Title + '</h3>
+                <p>' + $hyp.Statement + '</p>
+                <div>
+                    <span class="badge badge-confidence">Confidence: ' + $hyp.Confidence + '</span>
+                    <span class="badge badge-feasibility">' + $hyp.Feasibility + ' Feasibility</span>
+                    <span class="badge badge-impact">' + $hyp.Impact + ' Impact</span>
+                </div>
+                <p><small>ID: ' + $hyp.ID + ' | Method: ' + $hyp.Method + ' | Citations: ' + [math]::Round($hyp.Citations/1000,1) + 'K</small></p>
+            </div>            <div class="hypothesis ' + $confidenceClass + '" data-confidence="' + $confidenceLevel + '">
+                <h3>' + $hyp.Title + '</h3>
+                <p>' + $hyp.Statement + '</p>
+                <div>
+                    <span class="badge badge-confidence">Confidence: ' + $hyp.Confidence + '</span>
+                    <span class="badge badge-feasibility">' + $hyp.Feasibility + ' Feasibility</span>
+                    <span class="badge badge-impact">' + $hyp.Impact + ' Impact</span>
+                </div>
+                <p><small>ID: ' + $hyp.ID + ' | Method: ' + $hyp.Method + ' | Citations: ' + [math]::Round($hyp.Citations/1000,1) + 'K</small></p>
+            </div>        </div>
+    </div>
+
+    <script>
+        // FIXED: No backticks in PowerShell strings
+        const confidences = [' + ($hypotheses.Confidence -join ',') + '];
+        
+        const ctx = document.getElementById('confidenceChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                // FIXED: Use string concatenation instead of template literals
+                labels: Array.from({length: confidences.length}, (_, i) => 'H' + (i + 1)),
+                datasets: [{
+                    label: 'Confidence Score',
+                    data: confidences,
+                    backgroundColor: confidences.map(c => 
+                        c >= 0.8 ? '#4caf50' : 
+                        c >= 0.6 ? '#ff9800' : 
+                        '#f44336'
+                    )
+                }]
+            },
+            options: {
+                scales: {
+                    y: { 
+                        beginAtZero: true, 
+                        max: 1.0,
+                        title: {
+                            display: true,
+                            text: 'Confidence Score'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Hypothesis Number'
+                        }
+                    }
+                }
+            }
+        });
+
+        // FIXED: Clean filter logic
+        function filterByConfidence(level) {
+            const cards = document.querySelectorAll('.hypothesis');
+            
+            cards.forEach(card => {
+                const confidence = card.getAttribute('data-confidence');
+                let show = false;
+                
+                if (level === 'all') {
+                    show = true;
+                } else if (level === 'high') {
+                    show = (confidence === 'high');
+                } else if (level === 'medium') {
+                    // Medium includes both medium AND high
+                    show = (confidence === 'medium' || confidence === 'high');
+                } else if (level === 'low') {
+                    show = (confidence === 'low');
+                }
+                
+                card.style.display = show ? 'block' : 'none';
+            });
+        }
+        
+        // Show all by default
+        filterByConfidence('all');
+    </script>
+</body>
+</html>

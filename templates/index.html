@@ -1,0 +1,828 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeuroSQL Web Interface</title>
+    <script src="https://cdn.jsdelivr.net/npm/cytoscape/dist/cytoscape.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            display: flex;
+            gap: 20px;
+        }
+        .left-panel, .right-panel {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .left-panel {
+            flex: 1;
+        }
+        .right-panel {
+            flex: 2;
+        }
+        #cy {
+            width: 100%;
+            height: 600px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select, button {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .tab {
+            overflow: hidden;
+            border: 1px solid #ccc;
+            background-color: #f1f1f1;
+        }
+        .tab button {
+            background-color: inherit;
+            float: left;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            padding: 14px 16px;
+            transition: 0.3s;
+            width: auto;
+        }
+        .tab button:hover {
+            background-color: #ddd;
+        }
+        .tab button.active {
+            background-color: #ccc;
+        }
+        .tabcontent {
+            display: none;
+            padding: 6px 12px;
+            border: 1px solid #ccc;
+            border-top: none;
+        }
+        .concept-list {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        .concept-item {
+            padding: 5px;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+        }
+        .concept-item:hover {
+            background-color: #f0f0f0;
+        }
+        .relationship-type {
+            color: #666;
+            font-size: 0.9em;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4CAF50;
+        }
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+    <h1>NeuroSQL Knowledge Graph Explorer</h1>
+    
+    <div class="tab">
+        <button class="tablinks" onclick="openTab(event, 'GraphView')" id="defaultOpen">Graph View</button>
+        <button class="tablinks" onclick="openTab(event, 'DataView')">Data Management</button>
+        <button class="tablinks" onclick="openTab(event, 'AnalysisView')">Graph Analysis</button>
+    </div>
+    
+    <div id="GraphView" class="tabcontent">
+        <div class="container">
+            <div class="left-panel">
+                <h2>Graph Controls</h2>
+                
+                <div class="form-group">
+                    <label for="conceptSelect">Select Concept:</label>
+                    <select id="conceptSelect" onchange="loadRelationships()">
+                        <option value="">-- Select a concept --</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="startConcept">Start Concept:</label>
+                    <input type="text" id="startConcept" placeholder="Enter concept name">
+                </div>
+                
+                <div class="form-group">
+                    <label for="endConcept">End Concept (for pathfinding):</label>
+                    <input type="text" id="endConcept" placeholder="Enter concept name">
+                </div>
+                
+                <div class="form-group">
+                    <button onclick="runBFS()">Run BFS Traversal</button>
+                    <button onclick="runDFS()">Run DFS Traversal</button>
+                    <button onclick="findShortestPath()">Find Shortest Path</button>
+                    <button onclick="visualizeGraph()">Visualize Graph</button>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="conceptsCount">0</div>
+                        <div class="stat-label">Concepts</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="relationshipsCount">0</div>
+                        <div class="stat-label">Relationships</div>
+                    </div>
+                </div>
+                
+                <div id="results" class="result">
+                    <h3>Results</h3>
+                    <div id="resultContent"></div>
+                </div>
+            </div>
+            
+            <div class="right-panel">
+                <h2>Graph Visualization</h2>
+                <div id="cy"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="DataView" class="tabcontent">
+        <div class="container">
+            <div class="left-panel">
+                <h2>Add New Concept</h2>
+                <div class="form-group">
+                    <label for="newConceptName">Concept Name:</label>
+                    <input type="text" id="newConceptName" placeholder="Concept name">
+                </div>
+                <div class="form-group">
+                    <label for="newConceptDomain">Domain:</label>
+                    <input type="text" id="newConceptDomain" placeholder="Domain (optional)">
+                </div>
+                <div class="form-group">
+                    <label for="newConceptLevel">Abstraction Level:</label>
+                    <select id="newConceptLevel">
+                        <option value="0">0 (Concrete)</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3 (Abstract)</option>
+                    </select>
+                </div>
+                <button onclick="addConcept()">Add Concept</button>
+                
+                <h2 class="mt-4">Add Relationship</h2>
+                <div class="form-group">
+                    <label for="relFrom">From Concept:</label>
+                    <select id="relFrom">
+                        <option value="">-- Select source --</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="relTo">To Concept:</label>
+                    <select id="relTo">
+                        <option value="">-- Select target --</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="relType">Relationship Type:</label>
+                    <select id="relType">
+                        <option value="is_a">IS_A</option>
+                        <option value="part_of">PART_OF</option>
+                        <option value="has_property">HAS_PROPERTY</option>
+                        <option value="causes">CAUSES</option>
+                        <option value="uses">USES</option>
+                        <option value="related_to">RELATED_TO</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="relWeight">Weight (0.0 to 1.0):</label>
+                    <input type="number" id="relWeight" min="0" max="1" step="0.1" value="1.0">
+                </div>
+                <button onclick="addRelationship()">Add Relationship</button>
+            </div>
+            
+            <div class="right-panel">
+                <h2>All Concepts</h2>
+                <div class="concept-list" id="allConcepts"></div>
+                
+                <h2 class="mt-4">Save/Load Graph</h2>
+                <div class="form-group">
+                    <label for="filename">Filename:</label>
+                    <input type="text" id="filename" value="my_graph.json">
+                </div>
+                <div class="form-group">
+                    <button onclick="saveGraph()">Save Graph</button>
+                    <button onclick="loadGraph()">Load Graph</button>
+                </div>
+                
+                <div id="dataResults" class="result"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="AnalysisView" class="tabcontent">
+        <div class="container">
+            <div class="left-panel">
+                <h2>Graph Statistics</h2>
+                <div id="graphStats" class="result"></div>
+                
+                <h2 class="mt-4">Find Similar Concepts</h2>
+                <div class="form-group">
+                    <label for="similarConcept">Concept Name:</label>
+                    <input type="text" id="similarConcept" placeholder="Enter concept name">
+                </div>
+                <button onclick="findSimilar()">Find Similar</button>
+                <div id="similarResults" class="result mt-3"></div>
+            </div>
+            
+            <div class="right-panel">
+                <h2>Visual Analysis</h2>
+                <div id="vizContainer"></div>
+                <div class="form-group mt-3">
+                    <button onclick="generateViz()">Generate Visualization</button>
+                    <button onclick="downloadViz()">Download as PNG</button>
+                </div>
+                
+                <h2 class="mt-4">Quick Queries</h2>
+                <div class="form-group">
+                    <button onclick="findMostConnected()">Find Most Connected Concepts</button>
+                    <button onclick="findStrongestRelationships()">Find Strongest Relationships</button>
+                </div>
+                <div id="queryResults" class="result mt-3"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let cy;
+        let selectedConcept = null;
+        let currentImage = null;
+        
+        // Initialize Cytoscape
+        document.addEventListener('DOMContentLoaded', function() {
+            cy = cytoscape({
+                container: document.getElementById('cy'),
+                elements: [],
+                style: [
+                    {
+                        selector: 'node',
+                        style: {
+                            'background-color': '#666',
+                            'label': 'data(id)',
+                            'text-valign': 'center',
+                            'text-halign': 'center',
+                            'font-size': '10px'
+                        }
+                    },
+                    {
+                        selector: 'edge',
+                        style: {
+                            'width': 3,
+                            'line-color': '#ccc',
+                            'target-arrow-color': '#ccc',
+                            'target-arrow-shape': 'triangle',
+                            'curve-style': 'bezier',
+                            'label': 'data(type)',
+                            'font-size': '8px',
+                            'text-rotation': 'autorotate'
+                        }
+                    }
+                ],
+                layout: {
+                    name: 'cose',
+                    animate: true,
+                    animationDuration: 1000
+                }
+            });
+            
+            loadConcepts();
+            loadStats();
+            updateConceptLists();
+            
+            // Set default tab
+            document.getElementById("defaultOpen").click();
+        });
+        
+        function openTab(evt, tabName) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tabcontent");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+            tablinks = document.getElementsByClassName("tablinks");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.className += " active";
+        }
+        
+        async function loadConcepts() {
+            try {
+                const response = await axios.get('/api/concepts');
+                const concepts = response.data.concepts;
+                
+                const select = document.getElementById('conceptSelect');
+                const fromSelect = document.getElementById('relFrom');
+                const toSelect = document.getElementById('relTo');
+                
+                // Clear existing options
+                select.innerHTML = '<option value="">-- Select a concept --</option>';
+                fromSelect.innerHTML = '<option value="">-- Select source --</option>';
+                toSelect.innerHTML = '<option value="">-- Select target --</option>';
+                
+                concepts.forEach(concept => {
+                    // Add to concept select
+                    const option = document.createElement('option');
+                    option.value = concept.name;
+                    option.textContent = concept.name;
+                    select.appendChild(option);
+                    
+                    // Add to relationship selects
+                    const option1 = option.cloneNode(true);
+                    const option2 = option.cloneNode(true);
+                    fromSelect.appendChild(option1);
+                    toSelect.appendChild(option2);
+                    
+                    // Add to cytoscape
+                    cy.add({
+                        data: { id: concept.name }
+                    });
+                });
+                
+                // Load relationships to build edges
+                const relResponse = await axios.get('/api/relationships');
+                const relationships = relResponse.data.relationships;
+                
+                relationships.forEach(rel => {
+                    cy.add({
+                        data: {
+                            id: `${rel.from}-${rel.to}`,
+                            source: rel.from,
+                            target: rel.to,
+                            type: rel.type,
+                            weight: rel.weight
+                        }
+                    });
+                });
+                
+                cy.layout({ name: 'cose' }).run();
+                
+                // Update concept list display
+                updateConceptListDisplay(concepts);
+                
+            } catch (error) {
+                console.error('Error loading concepts:', error);
+            }
+        }
+        
+        function updateConceptListDisplay(concepts) {
+            const container = document.getElementById('allConcepts');
+            container.innerHTML = '';
+            
+            concepts.forEach(concept => {
+                const div = document.createElement('div');
+                div.className = 'concept-item';
+                div.innerHTML = `
+                    <strong>${concept.name}</strong>
+                    <div class="relationship-type">
+                        Domain: ${concept.domain} | Level: ${concept.abstraction_level}
+                    </div>
+                `;
+                div.onclick = () => selectConcept(concept.name);
+                container.appendChild(div);
+            });
+        }
+        
+        async function loadRelationships() {
+            const concept = document.getElementById('conceptSelect').value;
+            if (!concept) return;
+            
+            try {
+                const response = await axios.get(`/api/relationships?concept=${concept}`);
+                const relationships = response.data.relationships;
+                
+                let html = `<h4>Relationships for ${concept}:</h4><ul>`;
+                relationships.forEach(rel => {
+                    html += `<li>${rel.type}: ${rel.from} → ${rel.to} (weight: ${rel.weight})</li>`;
+                });
+                html += '</ul>';
+                
+                document.getElementById('resultContent').innerHTML = html;
+                
+            } catch (error) {
+                console.error('Error loading relationships:', error);
+            }
+        }
+        
+        async function runBFS() {
+            const start = document.getElementById('startConcept').value;
+            if (!start) {
+                alert('Please enter a start concept');
+                return;
+            }
+            
+            try {
+                const response = await axios.get(`/api/traverse/bfs?start=${start}&depth=3`);
+                const traversal = response.data.traversal;
+                
+                document.getElementById('resultContent').innerHTML = `
+                    <h4>BFS Traversal from ${start}:</h4>
+                    <p>${traversal.join(' → ')}</p>
+                `;
+                
+                // Highlight nodes in cytoscape
+                cy.nodes().removeClass('highlighted');
+                traversal.forEach(node => {
+                    cy.getElementById(node).addClass('highlighted');
+                });
+                
+            } catch (error) {
+                console.error('Error running BFS:', error);
+            }
+        }
+        
+        async function runDFS() {
+            const start = document.getElementById('startConcept').value;
+            if (!start) {
+                alert('Please enter a start concept');
+                return;
+            }
+            
+            try {
+                const response = await axios.get(`/api/traverse/dfs?start=${start}&depth=3`);
+                const traversal = response.data.traversal;
+                
+                document.getElementById('resultContent').innerHTML = `
+                    <h4>DFS Traversal from ${start}:</h4>
+                    <p>${traversal.join(' → ')}</p>
+                `;
+                
+            } catch (error) {
+                console.error('Error running DFS:', error);
+            }
+        }
+        
+        async function findShortestPath() {
+            const start = document.getElementById('startConcept').value;
+            const end = document.getElementById('endConcept').value;
+            
+            if (!start || !end) {
+                alert('Please enter both start and end concepts');
+                return;
+            }
+            
+            try {
+                const response = await axios.get(`/api/shortest-path?start=${start}&end=${end}`);
+                const path = response.data.path;
+                
+                document.getElementById('resultContent').innerHTML = `
+                    <h4>Shortest Path from ${start} to ${end}:</h4>
+                    <p>${path.join(' → ')}</p>
+                `;
+                
+            } catch (error) {
+                console.error('Error finding shortest path:', error);
+            }
+        }
+        
+        async function addConcept() {
+            const name = document.getElementById('newConceptName').value;
+            const domain = document.getElementById('newConceptDomain').value;
+            const level = document.getElementById('newConceptLevel').value;
+            
+            if (!name) {
+                alert('Please enter a concept name');
+                return;
+            }
+            
+            try {
+                await axios.post('/api/concepts', {
+                    name: name,
+                    domain: domain,
+                    abstraction_level: parseInt(level)
+                });
+                
+                alert('Concept added successfully!');
+                loadConcepts();
+                
+                // Clear form
+                document.getElementById('newConceptName').value = '';
+                document.getElementById('newConceptDomain').value = '';
+                
+            } catch (error) {
+                console.error('Error adding concept:', error);
+                alert('Error adding concept: ' + error.response?.data?.error || error.message);
+            }
+        }
+        
+        async function addRelationship() {
+            const from = document.getElementById('relFrom').value;
+            const to = document.getElementById('relTo').value;
+            const type = document.getElementById('relType').value;
+            const weight = document.getElementById('relWeight').value;
+            
+            if (!from || !to) {
+                alert('Please select both source and target concepts');
+                return;
+            }
+            
+            try {
+                await axios.post('/api/relationships', {
+                    from: from,
+                    to: to,
+                    type: type,
+                    weight: parseFloat(weight)
+                });
+                
+                alert('Relationship added successfully!');
+                loadConcepts();
+                
+            } catch (error) {
+                console.error('Error adding relationship:', error);
+                alert('Error adding relationship: ' + error.response?.data?.error || error.message);
+            }
+        }
+        
+        async function visualizeGraph() {
+            try {
+                const response = await axios.get('/api/visualize');
+                currentImage = response.data.image;
+                
+                // Create image element
+                const img = document.createElement('img');
+                img.src = `data:image/png;base64,${currentImage}`;
+                img.style.maxWidth = '100%';
+                img.style.border = '1px solid #ddd';
+                
+                // Show in result area
+                document.getElementById('resultContent').innerHTML = '';
+                document.getElementById('resultContent').appendChild(img);
+                
+            } catch (error) {
+                console.error('Error visualizing graph:', error);
+            }
+        }
+        
+        function downloadViz() {
+            if (!currentImage) {
+                alert('Please generate a visualization first');
+                return;
+            }
+            
+            const link = document.createElement('a');
+            link.download = 'neurosql_graph.png';
+            link.href = `data:image/png;base64,${currentImage}`;
+            link.click();
+        }
+        
+        function selectConcept(conceptName) {
+            // Find and select the node in cytoscape
+            const node = cy.getElementById(conceptName);
+            if (node.length > 0) {
+                cy.animate({
+                    center: { eles: node },
+                    zoom: 2
+                });
+                
+                cy.elements().removeClass('highlighted');
+                node.addClass('highlighted');
+                selectedConcept = conceptName;
+            }
+        }
+        
+        async function loadStats() {
+            try {
+                const response = await axios.get('/api/stats');
+                const stats = response.data;
+                
+                document.getElementById('conceptsCount').textContent = stats.concepts;
+                document.getElementById('relationshipsCount').textContent = stats.relationships;
+                
+                // Update stats tab
+                let statsHtml = `
+                    <h4>Graph Statistics</h4>
+                    <p>Concepts: ${stats.concepts}</p>
+                    <p>Relationships: ${stats.relationships}</p>
+                    <p>Domains: ${stats.domains}</p>
+                    <p>Abstraction Levels: ${stats.abstraction_levels}</p>
+                    <p>Relationship Types: ${stats.relationship_types}</p>
+                `;
+                document.getElementById('graphStats').innerHTML = statsHtml;
+                
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+        
+        function updateConceptLists() {
+            // This function will be called after loading concepts
+            loadConcepts();
+        }
+        
+        async function saveGraph() {
+            const filename = document.getElementById('filename').value || 'neurosql_graph.json';
+            
+            try {
+                await axios.post('/api/save', { filename: filename });
+                document.getElementById('dataResults').innerHTML = `
+                    <div class="alert alert-success">
+                        Graph saved to ${filename}
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Error saving graph:', error);
+                document.getElementById('dataResults').innerHTML = `
+                    <div class="alert alert-danger">
+                        Error saving graph: ${error.response?.data?.error || error.message}
+                    </div>
+                `;
+            }
+        }
+        
+        async function loadGraph() {
+            const filename = document.getElementById('filename').value || 'neurosql_graph.json';
+            
+            try {
+                await axios.post('/api/load', { filename: filename });
+                document.getElementById('dataResults').innerHTML = `
+                    <div class="alert alert-success">
+                        Graph loaded from ${filename}
+                    </div>
+                `;
+                
+                // Reload everything
+                loadConcepts();
+                loadStats();
+                
+            } catch (error) {
+                console.error('Error loading graph:', error);
+                document.getElementById('dataResults').innerHTML = `
+                    <div class="alert alert-danger">
+                        Error loading graph: ${error.response?.data?.error || error.message}
+                    </div>
+                `;
+            }
+        }
+        
+        async function findSimilar() {
+            const concept = document.getElementById('similarConcept').value;
+            if (!concept) {
+                alert('Please enter a concept name');
+                return;
+            }
+            
+            try {
+                // Get all concepts
+                const response = await axios.get('/api/concepts');
+                const concepts = response.data.concepts;
+                
+                // Simple similarity: same domain or similar name
+                const target = concepts.find(c => c.name === concept);
+                if (!target) {
+                    document.getElementById('similarResults').innerHTML = `
+                        <div class="alert alert-warning">
+                            Concept not found: ${concept}
+                        </div>
+                    `;
+                    return;
+                }
+                
+                const similar = concepts
+                    .filter(c => c.name !== concept)
+                    .filter(c => c.domain === target.domain)
+                    .slice(0, 10);
+                
+                if (similar.length === 0) {
+                    document.getElementById('similarResults').innerHTML = `
+                        <div class="alert alert-warning">
+                            No similar concepts found
+                        </div>
+                    `;
+                    return;
+                }
+                
+                let html = `<h4>Concepts similar to ${concept}:</h4><ul>`;
+                similar.forEach(c => {
+                    html += `<li>${c.name} (Domain: ${c.domain}, Level: ${c.abstraction_level})</li>`;
+                });
+                html += '</ul>';
+                
+                document.getElementById('similarResults').innerHTML = html;
+                
+            } catch (error) {
+                console.error('Error finding similar:', error);
+            }
+        }
+        
+        function generateViz() {
+            visualizeGraph();
+        }
+        
+        async function findMostConnected() {
+            try {
+                const response = await axios.get('/api/relationships');
+                const relationships = response.data.relationships;
+                
+                // Count connections for each concept
+                const connections = {};
+                relationships.forEach(rel => {
+                    connections[rel.from] = (connections[rel.from] || 0) + 1;
+                    connections[rel.to] = (connections[rel.to] || 0) + 1;
+                });
+                
+                // Sort by number of connections
+                const sorted = Object.entries(connections)
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 10);
+                
+                let html = `<h4>Most Connected Concepts:</h4><ol>`;
+                sorted.forEach(([concept, count]) => {
+                    html += `<li>${concept}: ${count} connections</li>`;
+                });
+                html += '</ol>';
+                
+                document.getElementById('queryResults').innerHTML = html;
+                
+            } catch (error) {
+                console.error('Error finding most connected:', error);
+            }
+        }
+        
+        async function findStrongestRelationships() {
+            try {
+                const response = await axios.get('/api/relationships');
+                const relationships = response.data.relationships;
+                
+                // Sort by weight
+                const sorted = relationships
+                    .sort((a, b) => b.weight - a.weight)
+                    .slice(0, 10);
+                
+                let html = `<h4>Strongest Relationships:</h4><ol>`;
+                sorted.forEach(rel => {
+                    html += `<li>${rel.from} → ${rel.to}: ${rel.type} (weight: ${rel.weight})</li>`;
+                });
+                html += '</ol>';
+                
+                document.getElementById('queryResults').innerHTML = html;
+                
+            } catch (error) {
+                console.error('Error finding strongest relationships:', error);
+            }
+        }
+    </script>
+</body>
+</html>

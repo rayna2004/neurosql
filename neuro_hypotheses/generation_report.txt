@@ -1,0 +1,38 @@
+﻿NEUROSCIENCE HYPOTHESIS GENERATION REPORT
+=========================================
+Generated: 01/19/2026 12:30:12
+System: NeuroSQL Hypothesis Generator v2.0
+
+SUMMARY
+-------
+• Hypotheses generated: 0
+• Experiment designs: 0
+• Funding proposals: 5
+
+TOP HYPOTHESES
+--------------
+
+
+EXPERIMENTAL DESIGNS
+--------------------
+
+
+FUNDING OPPORTUNITIES
+---------------------
+• : )(Get-Random -Minimum 250000 -Maximum 500000) over 3 years - This research addresses a critical gap in our understanding of .
+• : )(Get-Random -Minimum 250000 -Maximum 500000) over 3 years - This research addresses a critical gap in our understanding of .
+• : )(Get-Random -Minimum 250000 -Maximum 500000) over 3 years - This study will provide novel insights into .
+• : )(Get-Random -Minimum 250000 -Maximum 500000) over 3 years - This research addresses a critical gap in our understanding of .
+• : )(Get-Random -Minimum 250000 -Maximum 500000) over 3 years - This study will provide novel insights into .
+
+NEXT STEPS
+----------
+1. Review generated hypotheses
+2. Select top 3 for literature review
+3. Design pilot experiments
+4. Prepare IRB/IACUC protocols
+5. Submit funding applications
+
+FILES GENERATED
+---------------
+• hypotheses.csv (0 bytes) • experiments.csv (0 bytes) • proposals.csv (1927 bytes)

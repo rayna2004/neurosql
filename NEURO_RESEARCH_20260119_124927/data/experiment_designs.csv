@@ -1,0 +1,5 @@
+"HypothesisID","Title","Species","SampleSize","Design","PrimaryOutcome","Duration","KeyMethod","StatisticalPlan","EstimatedCost"
+"RH_0001","Experimental test: The Hippocampus-prefrontal cortex circuit in spatial memory","Sprague-Dawley rats","29","Randomized controlled trial","Neural activity","3 months","MRI","ANOVA with post-hoc tests","$64,821"
+"RH_0002","Experimental test: The Hippocampus-prefrontal cortex circuit in episodic memory","Human participants","9","Randomized controlled trial","Connectivity","10 months","MRI","ANOVA with post-hoc tests","$78,954"
+"RH_0003","Experimental test: The Prefrontal Cortex-hippocampus circuit in working memory","Sprague-Dawley rats","30","Randomized controlled trial","Behavioral performance","4 months","fMRI","ANOVA with post-hoc tests","$128,359"
+"RH_0004","Experimental test: The Prefrontal Cortex-hippocampus circuit in decision making","Sprague-Dawley rats","36","Randomized controlled trial","Connectivity","9 months","TMS","ANOVA with post-hoc tests","$152,111"

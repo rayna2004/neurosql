@@ -1,0 +1,80 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Neuroscience Hypothesis Generator Results</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .chart-container { width: 800px; margin: 20px auto; }
+        .hypothesis-list { background: #f5f5f5; padding: 20px; margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <h1>🧠 Neuroscience Hypothesis Generator</h1>
+    <p>Generated on: 01/19/2026 12:30:12</p>
+    
+    <div class="chart-container">
+        <canvas id="confidenceChart"></canvas>
+    </div>
+    
+    <div class="chart-container">
+        <canvas id="topicChart"></canvas>
+    </div>
+    
+    <h2>Top Hypotheses</h2>
+    <div class="hypothesis-list">
+        
+    </div>
+    
+    <script>
+        // Confidence distribution chart
+        const confCtx = document.getElementById('confidenceChart').getContext('2d');
+        const confidenceChart = new Chart(confCtx, {
+            type: 'bar',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Confidence Score',
+                    data: [],
+                    backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                    borderColor: 'rgba(54, 162, 235, 1)'
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 1.0
+                    }
+                }
+            }
+        });
+        
+        // Topic distribution chart
+        const topicCtx = document.getElementById('topicChart').getContext('2d');
+        
+        // Count topics
+        const topics = {};
+        '': 1
+        
+        const topicChart = new Chart(topicCtx, {
+            type: 'pie',
+            data: {
+                labels: ['Neuroinflammation', 'Gut-Brain Axis', 'Single-cell', 'AI', 'Circadian'],
+                datasets: [{
+                    data: [3, 3, 
+                           3, 1, 
+                           2],
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.5)',
+                        'rgba(54, 162, 235, 0.5)',
+                        'rgba(255, 206, 86, 0.5)',
+                        'rgba(75, 192, 192, 0.5)',
+                        'rgba(153, 102, 255, 0.5)'
+                    ]
+                }]
+            }
+        });
+    </script>
+</body>
+</html>

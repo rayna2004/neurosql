@@ -1,0 +1,55 @@
+﻿NEUROSCIENCE RESEARCH PORTFOLIO
+================================
+Project: NEURO_RESEARCH_20260119_124927
+Generated: 01/19/2026 12:49:28
+
+SUMMARY
+-------
+• PubMed trends analyzed: 6
+• Research hypotheses: 4
+• Experiment designs: 4
+
+TOP HYPOTHESES
+--------------
+• RH_0003: The Prefrontal Cortex-hippocampus circuit in working memory
+
+  working memory depends on functional connectivity between Prefrontal Cortex and hippocampus
+
+  Confidence: 0.85 | Novelty: 0.061
+
+• RH_0001: The Hippocampus-prefrontal cortex circuit in spatial memory
+
+  spatial memory depends on functional connectivity between Hippocampus and prefrontal cortex
+
+  Confidence: 0.79 | Novelty: 0.061
+
+• RH_0004: The Prefrontal Cortex-hippocampus circuit in decision making
+
+  decision making depends on functional connectivity between Prefrontal Cortex and hippocampus
+
+  Confidence: 0.75 | Novelty: 0.061
+
+EXPERIMENT READINESS
+--------------------
+• RH_0001: Experimental test: The Hippocampus-prefrontal cortex circuit in spatial memory
+
+  Sample: n=29 Sprague-Dawley rats
+
+  Duration: 3 months | Cost: $64,821
+
+• RH_0002: Experimental test: The Hippocampus-prefrontal cortex circuit in episodic memory
+
+  Sample: n=9 Human participants
+
+  Duration: 10 months | Cost: $78,954
+
+FILES CREATED
+-------------
+• pubmed_trends.csv • research_hypotheses.csv • experiment_designs.csv
+
+NEXT STEPS
+----------
+1. Review hypotheses.csv for research ideas
+2. Design specific experiments
+3. Prepare grant applications
+4. Consult with neuroscience experts

@@ -1,0 +1,186 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Neuroscience Research Dashboard - NEURO_COMPLETE_20260119_125542</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f8f9fa; color: #333; }
+        .header { background: linear-gradient(135deg, #1a237e, #283593); color: white; padding: 2.5rem; text-align: center; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+        .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin: 2rem 0; }
+        .metric-card { background: white; padding: 1.5rem; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center; }
+        .metric-value { font-size: 2.5rem; font-weight: bold; color: #1a237e; margin: 0.5rem 0; }
+        .metric-label { color: #5c6bc0; font-size: 0.9rem; }
+        .section { background: white; padding: 2rem; margin: 2rem 0; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .hypothesis-card { border-left: 4px solid #42a5f5; padding: 1.5rem; margin: 1rem 0; background: #f8fdff; }
+        .badge { display: inline-block; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.8rem; margin-right: 0.5rem; }
+        .confidence-badge { background: #4caf50; color: white; }
+        .novelty-badge { background: #ff9800; color: white; }
+        .chart-container { height: 300px; margin: 1.5rem 0; }
+        .file-list { list-style: none; }
+        .file-item { padding: 1rem; border-bottom: 1px solid #eee; }
+        .file-item:last-child { border-bottom: none; }
+        .footer { text-align: center; padding: 2rem; color: #78909c; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🧠 Neuroscience Research Dashboard</h1>
+        <p>Project: NEURO_COMPLETE_20260119_125542 | Generated: January 19, 2026 12:55</p>
+    </div>
+    
+    <div class="container">
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-value">8</div>
+                <div class="metric-label">Research Hypotheses</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">0.695</div>
+                <div class="metric-label">Avg Confidence</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">3</div>
+                <div class="metric-label">High Confidence (≥0.8)</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">Yellow(@{TotalHypotheses=8; AvgConfidence=0.695; AvgNovelty=0.17; TotalCitations=198190; HighConfidence=3; HighFeasibility=2; TherapeuticImpact=; TotalSampleRequired=1903; TotalBudgetRequired=1.052235}.TotalBudgetRequired.ToString('0.0'))M</div>
+                <div class="metric-label">Estimated Budget</div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>Research Hypothesis Confidence Distribution</h2>
+            <div class="chart-container">
+                <canvas id="confidenceChart"></canvas>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>Top Research Hypotheses</h2>
+            <div class='hypothesis-card'>
+                    <h3>Optogenetics reveals Hippocampus dysfunction in Epilepsy</h3>
+                    <p>Altered Episodic Memory in Hippocampus, measured by Optogenetics, contributes to Epilepsy pathology</p>
+                    <div style='margin-top: 1rem;'>
+                        <span class='badge confidence-badge'>Confidence: 0.92</span>
+                        <span class='badge novelty-badge'>Novelty: 0.078</span>
+                        <span class='badge' style='background: #9c27b0; color: white;'>High Feasibility</span>
+                        <span class='badge' style='background: #009688; color: white;'>Therapeutic Impact</span>
+                    </div>
+                    <p style='margin-top: 0.5rem; color: #607d8b;'>
+                        <small>ID: NEURO_HYP_0004 | Method: Optogenetics | Citations: 21,830</small>
+                    </p>
+                </div><div class='hypothesis-card'>
+                    <h3>Optogenetics reveals Prefrontal Cortex dysfunction in Schizophrenia</h3>
+                    <p>Altered Working Memory in Prefrontal Cortex, measured by Optogenetics, contributes to Schizophrenia pathology</p>
+                    <div style='margin-top: 1rem;'>
+                        <span class='badge confidence-badge'>Confidence: 0.85</span>
+                        <span class='badge novelty-badge'>Novelty: 0.077</span>
+                        <span class='badge' style='background: #9c27b0; color: white;'>Medium Feasibility</span>
+                        <span class='badge' style='background: #009688; color: white;'>Mechanistic Impact</span>
+                    </div>
+                    <p style='margin-top: 0.5rem; color: #607d8b;'>
+                        <small>ID: NEURO_HYP_0008 | Method: Optogenetics | Citations: 18,308</small>
+                    </p>
+                </div><div class='hypothesis-card'>
+                    <h3>Optogenetics reveals Prefrontal Cortex dysfunction in Depression</h3>
+                    <p>Altered Working Memory in Prefrontal Cortex, measured by Optogenetics, contributes to Depression pathology</p>
+                    <div style='margin-top: 1rem;'>
+                        <span class='badge confidence-badge'>Confidence: 0.83</span>
+                        <span class='badge novelty-badge'>Novelty: 0.09</span>
+                        <span class='badge' style='background: #9c27b0; color: white;'>Medium Feasibility</span>
+                        <span class='badge' style='background: #009688; color: white;'>Diagnostic Impact</span>
+                    </div>
+                    <p style='margin-top: 0.5rem; color: #607d8b;'>
+                        <small>ID: NEURO_HYP_0006 | Method: Optogenetics | Citations: 18,308</small>
+                    </p>
+                </div><div class='hypothesis-card'>
+                    <h3>Optogenetics reveals Prefrontal Cortex dysfunction in Schizophrenia</h3>
+                    <p>Altered Decision Making in Prefrontal Cortex, measured by Optogenetics, contributes to Schizophrenia pathology</p>
+                    <div style='margin-top: 1rem;'>
+                        <span class='badge confidence-badge'>Confidence: 0.71</span>
+                        <span class='badge novelty-badge'>Novelty: 0.148</span>
+                        <span class='badge' style='background: #9c27b0; color: white;'>Medium Feasibility</span>
+                        <span class='badge' style='background: #009688; color: white;'>Mechanistic Impact</span>
+                    </div>
+                    <p style='margin-top: 0.5rem; color: #607d8b;'>
+                        <small>ID: NEURO_HYP_0005 | Method: Optogenetics | Citations: 18,308</small>
+                    </p>
+                </div><div class='hypothesis-card'>
+                    <h3>fMRI reveals Hippocampus dysfunction in PTSD</h3>
+                    <p>Altered Spatial Memory in Hippocampus, measured by fMRI, contributes to PTSD pathology</p>
+                    <div style='margin-top: 1rem;'>
+                        <span class='badge confidence-badge'>Confidence: 0.63</span>
+                        <span class='badge novelty-badge'>Novelty: 0.223</span>
+                        <span class='badge' style='background: #9c27b0; color: white;'>High Feasibility</span>
+                        <span class='badge' style='background: #009688; color: white;'>Diagnostic Impact</span>
+                    </div>
+                    <p style='margin-top: 0.5rem; color: #607d8b;'>
+                        <small>ID: NEURO_HYP_0001 | Method: fMRI | Citations: 42,410</small>
+                    </p>
+                </div>
+        </div>
+        
+        <div class="section">
+            <h2>Generated Files</h2>
+            <ul class="file-list">
+            <li class='file-item'>
+                    <strong>research_hypotheses.csv</strong><br>
+                    <small>NEURO_COMPLETE_20260119_125542\data\research_hypotheses.csv | 2.56 KB</small>
+                </li> <li class='file-item'>
+                    <strong>experiment_designs.csv</strong><br>
+                    <small>NEURO_COMPLETE_20260119_125542\data\experiment_designs.csv | 1.85 KB</small>
+                </li> <li class='file-item'>
+                    <strong>grant_components.csv</strong><br>
+                    <small>NEURO_COMPLETE_20260119_125542\data\grant_components.csv | 2.54 KB</small>
+                </li> <li class='file-item'>
+                    <strong>statistics.csv</strong><br>
+                    <small>NEURO_COMPLETE_20260119_125542\analysis\statistics.csv | 0.21 KB</small>
+                </li> <li class='file-item'>
+                    <strong>research_roadmap.txt</strong><br>
+                    <small>NEURO_COMPLETE_20260119_125542\analysis\research_roadmap.txt | 3.1 KB</small>
+                </li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <p>Generated by Complete Neuroscience Research Assistant</p>
+        <p>This dashboard provides an overview of automatically generated neuroscience research hypotheses.</p>
+        <p>For scientific validation, consult with neuroscience faculty and statisticians.</p>
+    </div>
+    
+    <script>
+        // Confidence distribution chart
+        const confidences = [0.63,0.5,0.58,0.92,0.71,0.83,0.54,0.85];
+        
+        const ctx = document.getElementById('confidenceChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'histogram',
+            data: {
+                datasets: [{
+                    label: 'Hypothesis Confidence',
+                    data: confidences,
+                    backgroundColor: 'rgba(66, 165, 245, 0.7)',
+                    borderColor: 'rgba(66, 165, 245, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    x: {
+                        title: { display: true, text: 'Confidence Score' },
+                        min: 0.5,
+                        max: 1.0
+                    },
+                    y: {
+                        title: { display: true, text: 'Number of Hypotheses' },
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

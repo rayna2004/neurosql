@@ -1,0 +1,298 @@
+{
+  "name": "Advanced Knowledge Graph",
+  "concepts": {
+    "Fluffy": {
+      "name": "Fluffy",
+      "attributes": {
+        "species": "cat",
+        "age": 3,
+        "color": "orange"
+      },
+      "abstraction_level": 0,
+      "domain": "pets"
+    },
+    "Fido": {
+      "name": "Fido",
+      "attributes": {
+        "species": "dog",
+        "age": 5,
+        "breed": "labrador"
+      },
+      "abstraction_level": 0,
+      "domain": "pets"
+    },
+    "Playful": {
+      "name": "Playful",
+      "attributes": {
+        "trait_type": "personality"
+      },
+      "abstraction_level": 0,
+      "domain": "traits"
+    },
+    "Loyal": {
+      "name": "Loyal",
+      "attributes": {
+        "trait_type": "personality"
+      },
+      "abstraction_level": 0,
+      "domain": "traits"
+    },
+    "Cat": {
+      "name": "Cat",
+      "attributes": {
+        "type": "mammal",
+        "domestic": true
+      },
+      "abstraction_level": 1,
+      "domain": "animals"
+    },
+    "Dog": {
+      "name": "Dog",
+      "attributes": {
+        "type": "mammal",
+        "domestic": true
+      },
+      "abstraction_level": 1,
+      "domain": "animals"
+    },
+    "Pet": {
+      "name": "Pet",
+      "attributes": {
+        "role": "companion"
+      },
+      "abstraction_level": 1,
+      "domain": "animals"
+    },
+    "Mammal": {
+      "name": "Mammal",
+      "attributes": {
+        "characteristics": [
+          "warm-blooded",
+          "vertebrate"
+        ]
+      },
+      "abstraction_level": 2,
+      "domain": "biology"
+    },
+    "Animal": {
+      "name": "Animal",
+      "attributes": {
+        "kingdom": "animalia"
+      },
+      "abstraction_level": 2,
+      "domain": "biology"
+    },
+    "LivingBeing": {
+      "name": "LivingBeing",
+      "attributes": {
+        "attributes": [
+          "grows",
+          "reproduces"
+        ]
+      },
+      "abstraction_level": 3,
+      "domain": "philosophy"
+    },
+    "MachineLearning": {
+      "name": "MachineLearning",
+      "attributes": {
+        "type": "field"
+      },
+      "abstraction_level": 1,
+      "domain": "computer_science"
+    },
+    "NeuralNetwork": {
+      "name": "NeuralNetwork",
+      "attributes": {
+        "type": "model"
+      },
+      "abstraction_level": 0,
+      "domain": "computer_science"
+    },
+    "DeepLearning": {
+      "name": "DeepLearning",
+      "attributes": {
+        "type": "subfield"
+      },
+      "abstraction_level": 1,
+      "domain": "computer_science"
+    },
+    "CNN": {
+      "name": "CNN",
+      "attributes": {
+        "full_name": "Convolutional Neural Network"
+      },
+      "abstraction_level": 0,
+      "domain": "computer_science"
+    },
+    "RNN": {
+      "name": "RNN",
+      "attributes": {
+        "full_name": "Recurrent Neural Network"
+      },
+      "abstraction_level": 0,
+      "domain": "computer_science"
+    }
+  },
+  "relationships": [
+    {
+      "concept_from": "Fluffy",
+      "concept_to": "Cat",
+      "relationship_type": "is_a",
+      "weight": 0.95,
+      "confidence": 1.0,
+      "metadata": {}
+    },
+    {
+      "concept_from": "Fido",
+      "concept_to": "Dog",
+      "relationship_type": "is_a",
+      "weight": 0.98,
+      "confidence": 1.0,
+      "metadata": {}
+    },
+    {
+      "concept_from": "Cat",
+      "concept_to": "Mammal",
+      "relationship_type": "is_a",
+      "weight": 0.99,
+      "confidence": 1.0,
+      "metadata": {}
+    },
+    {
+      "concept_from": "Dog",
+      "concept_to": "Mammal",
+      "relationship_type": "is_a",
+      "weight": 0.99,
+      "confidence": 1.0,
+      "metadata": {}
+    },
+    {
+      "concept_from": "Mammal",
+      "concept_to": "Animal",
+      "relationship_type": "is_a",
+      "weight": 0.97,
+      "confidence": 1.0,
+      "metadata": {}
+    },
+    {
+      "concept_from": "Animal",
+      "concept_to": "LivingBeing",
+      "relationship_type": "is_a",
+      "weight": 0.9,
+      "confidence": 1.0,
+      "metadata": {}
+    },
+    {
+      "concept_from": "Cat",
+      "concept_to": "Pet",
+      "relationship_type": "is_a",
+      "weight": 0.85,
+      "confidence": 1.0,
+      "metadata": {}
+    },
+    {
+      "concept_from": "Dog",
+      "concept_to": "Pet",
+      "relationship_type": "is_a",
+      "weight": 0.95,
+      "confidence": 1.0,
+      "metadata": {}
+    },
+    {
+      "concept_from": "Fluffy",
+      "concept_to": "Playful",
+      "relationship_type": "has_property",
+      "weight": 0.8,
+      "confidence": 1.0,
+      "metadata": {}
+    },
+    {
+      "concept_from": "Fido",
+      "concept_to": "Loyal",
+      "relationship_type": "has_property",
+      "weight": 0.9,
+      "confidence": 1.0,
+      "metadata": {}
+    },
+    {
+      "concept_from": "NeuralNetwork",
+      "concept_to": "MachineLearning",
+      "relationship_type": "part_of",
+      "weight": 0.95,
+      "confidence": 1.0,
+      "metadata": {}
+    },
+    {
+      "concept_from": "DeepLearning",
+      "concept_to": "MachineLearning",
+      "relationship_type": "is_a",
+      "weight": 0.92,
+      "confidence": 1.0,
+      "metadata": {}
+    },
+    {
+      "concept_from": "DeepLearning",
+      "concept_to": "NeuralNetwork",
+      "relationship_type": "uses",
+      "weight": 0.88,
+      "confidence": 1.0,
+      "metadata": {}
+    },
+    {
+      "concept_from": "CNN",
+      "concept_to": "DeepLearning",
+      "relationship_type": "is_a",
+      "weight": 0.9,
+      "confidence": 1.0,
+      "metadata": {}
+    },
+    {
+      "concept_from": "RNN",
+      "concept_to": "DeepLearning",
+      "relationship_type": "is_a",
+      "weight": 0.9,
+      "confidence": 1.0,
+      "metadata": {}
+    },
+    {
+      "concept_from": "CNN",
+      "concept_to": "NeuralNetwork",
+      "relationship_type": "is_a",
+      "weight": 0.95,
+      "confidence": 1.0,
+      "metadata": {}
+    },
+    {
+      "concept_from": "RNN",
+      "concept_to": "NeuralNetwork",
+      "relationship_type": "is_a",
+      "weight": 0.95,
+      "confidence": 1.0,
+      "metadata": {}
+    }
+  ],
+  "layers": {
+    "concrete": [
+      "Fluffy",
+      "Fido",
+      "Playful",
+      "Loyal",
+      "NeuralNetwork",
+      "CNN",
+      "RNN"
+    ],
+    "abstract": [
+      "Cat",
+      "Dog",
+      "Pet",
+      "Mammal",
+      "Animal",
+      "MachineLearning",
+      "DeepLearning"
+    ],
+    "meta": [
+      "LivingBeing"
+    ]
+  }
+}

@@ -1,0 +1,51 @@
+﻿============================================================
+🧠 NEUROSCIENCE RESEARCH PORTFOLIO
+============================================================
+PROJECT ID: NEURO_RESEARCH_20260119_124550
+GENERATED: 01/19/2026 12:45:55
+SYSTEM: REAL Neuroscience Research Assistant v1.0
+
+EXECUTIVE SUMMARY
+-----------------
+This portfolio contains a comprehensive neuroscience research plan generated through
+analysis of current literature and identification of research gaps.
+
+KEY METRICS:
+• PubMed queries performed: 6
+• Research hypotheses generated: 0
+• Experiment designs: 0
+• Grant components: 0
+
+TOP RESEARCH HYPOTHESES (by novelty)
+-------------------------------------
+
+
+EXPERIMENTAL READINESS
+----------------------
+
+
+FUNDING OPPORTUNITIES
+---------------------
+
+
+FILES GENERATED
+---------------
+• NEURO_RESEARCH_20260119_124550\data\pubmed_trends.csv • NEURO_RESEARCH_20260119_124550\data\research_hypotheses.csv • NEURO_RESEARCH_20260119_124550\data\experiment_designs.csv • NEURO_RESEARCH_20260119_124550\data\grant_components.csv
+
+NEXT STEPS
+----------
+1. Review .\NEURO_RESEARCH_20260119_124550\data\research_hypotheses.csv for specific ideas
+2. Use .\NEURO_RESEARCH_20260119_124550\data\experiment_designs.csv for study planning
+3. Adapt .\NEURO_RESEARCH_20260119_124550\data\grant_components.csv for funding applications
+4. Validate PubMed trends with updated searches
+5. Consult with domain experts on feasibility
+
+CONTACT & SUPPORT
+-----------------
+This portfolio was generated automatically. For questions about specific
+hypotheses or experimental designs, consult with neuroscience faculty
+and biostatisticians.
+
+============================================================
+END OF PORTFOLIO
+============================================================

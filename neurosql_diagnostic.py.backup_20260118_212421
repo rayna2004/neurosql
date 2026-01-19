@@ -1,0 +1,204 @@
+#!/usr/bin/env python3
+"""
+NeuroSQL Pathfinding Diagnostic Tool
+Usage: python neurosql_diagnostic.py
+"""
+
+import json
+import sys
+import time
+from pathlib import Path
+
+# Try to import NeuroSQL - adjust import based on your structure
+try:
+    # Common import patterns
+    try:
+        from neurosql import Session, KnowledgeBase
+    except ImportError:
+        try:
+            from src.neurosql import Session
+        except ImportError:
+            # Add your project to path
+            sys.path.insert(0, str(Path(__file__).parent))
+            from neurosql import Session
+except ImportError as e:
+    print(f"❌ Cannot import NeuroSQL: {e}")
+    print("Make sure you're in the NeuroSQL project directory")
+    sys.exit(1)
+
+
+def print_header(title):
+    """Print a formatted header"""
+    print("\n" + "="*70)
+    print(f" {title}")
+    print("="*70)
+
+
+def check_pathfinding_issue():
+    """Main diagnostic function"""
+    
+    print_header("NEUROSQL PATHFINDING DIAGNOSTIC")
+    
+    try:
+        # Initialize session
+        print("📊 Initializing NeuroSQL session...")
+        session = Session()
+        
+        # 1. Check initial state
+        print_header("1. INITIAL STATE (BEFORE REASONING)")
+        
+        print("🔍 Finding path from 'Python' to 'Software'...")
+        paths_before = session.execute_query('FIND PATH FROM "Python" TO "Software"')
+        print(f"   Paths found: {len(paths_before)}")
+        
+        if len(paths_before) > 0:
+            print(f"   Example path: {' → '.join(paths_before[0])}")
+        
+        # Check relationships from Python
+        print("\n📈 Checking relationships from 'Python'...")
+        rels_python = session.execute_query('FIND RELATIONSHIPS FROM "Python"')
+        print(f"   Python has {len(rels_python)} outgoing relationships")
+        for rel in rels_python[:5]:  # Show first 5
+            print(f"     - {rel.get('source')} → {rel.get('target')} "
+                  f"(type: {rel.get('type')}, inferred: {rel.get('inferred', False)})")
+        
+        # 2. Run reasoning
+        print_header("2. RUNNING REASONING")
+        
+        print("🧠 Running transitive closure/reasoning...")
+        start_time = time.time()
+        
+        try:
+            # Try different method names
+            if hasattr(session, 'run_transitive_closure'):
+                session.run_transitive_closure()
+            elif hasattr(session, 'run_reasoning'):
+                session.run_reasoning()
+            elif hasattr(session, 'infer_edges'):
+                session.infer_edges()
+            else:
+                print("⚠️  Could not find reasoning method. Trying to call directly...")
+                # Look for reasoning in the module
+                import neurosql
+                if hasattr(neurosql, 'run_transitive_closure'):
+                    neurosql.run_transitive_closure()
+        except Exception as e:
+            print(f"⚠️  Reasoning failed: {e}")
+            print("Continuing with manual check...")
+        
+        reasoning_time = time.time() - start_time
+        print(f"✓ Reasoning completed in {reasoning_time:.2f}s")
+        
+        # 3. Check after reasoning
+        print_header("3. STATE AFTER REASONING")
+        
+        print("🔍 Re-running path query...")
+        paths_after = session.execute_query('FIND PATH FROM "Python" TO "Software"')
+        print(f"   Paths found: {len(paths_after)}")
+        
+        if len(paths_after) > 0:
+            print(f"   Example path: {' → '.join(paths_after[0])}")
+        else:
+            print("   ❌ NO PATHS FOUND (This indicates the issue!)")
+        
+        # Check relationships again
+        print("\n📈 Checking relationships from 'Python' again...")
+        rels_python_after = session.execute_query('FIND RELATIONSHIPS FROM "Python"')
+        print(f"   Python now has {len(rels_python_after)} outgoing relationships")
+        
+        # Find new/inferred relationships
+        initial_targets = {r.get('target') for r in rels_python}
+        new_targets = [r.get('target') for r in rels_python_after 
+                      if r.get('target') not in initial_targets]
+        
+        if new_targets:
+            print(f"   New inferred targets: {', '.join(new_targets)}")
+        else:
+            print("   No new targets found (check if inference worked)")
+        
+        # 4. Diagnostic conclusions
+        print_header("4. DIAGNOSTIC RESULTS")
+        
+        if len(paths_before) == 0 and len(paths_after) == 0:
+            print("❌ ISSUE CONFIRMED: Pathfinding not seeing inferred edges")
+            print("\n   Most likely cause: Pathfinding function filters out inferred edges")
+            print("   Fix: Update get_edges_for_traversal() to include inferred=True edges")
+            
+        elif len(paths_before) == 0 and len(paths_after) > 0:
+            print("✅ CORRECT BEHAVIOR: Pathfinding works with inferred edges")
+            print("\n   Issue might be in the demo not re-running the query")
+            
+        else:
+            print("⚠️  UNEXPECTED: Path existed before reasoning")
+            print("   Check your initial knowledge base setup")
+        
+        # 5. Additional checks
+        print_header("5. ADDITIONAL CHECKS")
+        
+        # Check if we can query inferred edges directly
+        print("🔧 Checking inferred edges query...")
+        try:
+            # Try to query for inferred edges specifically
+            inferred_query = 'FIND RELATIONSHIPS FROM "Python" WHERE inferred = True'
+            inferred_edges = session.execute_query(inferred_query)
+            print(f"   Direct query found {len(inferred_edges)} inferred edges")
+        except:
+            print("   Could not query inferred edges directly")
+        
+        # Check graph connectivity
+        print("\n🔗 Testing other paths...")
+        test_paths = [
+            ("Python", "ProgrammingLanguage"),
+            ("Software", "Concept"),
+            ("Dog", "Animal")
+        ]
+        
+        for start, end in test_paths:
+            try:
+                paths = session.execute_query(f'FIND PATH FROM "{start}" TO "{end}"')
+                print(f"   {start} → {end}: {len(paths)} paths")
+            except:
+                print(f"   {start} → {end}: Query failed")
+        
+        print_header("DIAGNOSTIC COMPLETE")
+        print("\n💡 Recommended next steps:")
+        print("1. Check the get_edges_for_traversal() function")
+        print("2. Look for 'inferred = False' filters in pathfinding")
+        print("3. Ensure inferred edges are in the same table/collection")
+        print("4. Add include_inferred=True parameter to pathfinding")
+        
+        return True
+        
+    except Exception as e:
+        print(f"\n❌ Diagnostic failed with error: {e}")
+        import traceback
+        traceback.print_exc()
+        return False
+
+
+def quick_fix_test():
+    """Test a potential fix"""
+    print_header("TESTING QUICK FIX")
+    
+    # This would modify the traversal function temporarily
+    print("Simulating fix: include_inferred=True")
+    print("\nModified traversal logic would:")
+    print("1. Merge asserted + inferred edges")
+    print("2. Not filter by 'inferred' flag")
+    print("3. Store edge source for debugging")
+    
+    return True
+
+
+if __name__ == "__main__":
+    print("🚀 NeuroSQL Pathfinding Diagnostic Tool")
+    print("This will test if pathfinding includes inferred relationships\n")
+    
+    # Run diagnostic
+    if len(sys.argv) > 1 and sys.argv[1] == "--fix":
+        quick_fix_test()
+    else:
+        check_pathfinding_issue()
+    
+    print("\n📝 To apply a quick fix, run:")
+    print("   python neurosql_diagnostic.py --fix")

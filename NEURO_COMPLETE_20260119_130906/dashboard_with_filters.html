@@ -1,0 +1,105 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Interactive Neuroscience Dashboard</title>
+    <style>
+        .filter-bar { background: #e3f2fd; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        .filter-btn { margin: 5px; padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer; }
+        .high-btn { background: #4caf50; color: white; }
+        .medium-btn { background: #ff9800; color: white; }
+        .low-btn { background: #f44336; color: white; }
+        .all-btn { background: #2196f3; color: white; }
+        .hypothesis-card { 
+            display: none;  /* Initially hide all */
+            border: 1px solid #ddd; 
+            padding: 15px; 
+            margin: 10px 0; 
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧠 Interactive Neuroscience Dashboard</h1>
+    
+    <div class="filter-bar">
+        <button class="filter-btn all-btn" onclick="showAll()">Show All (8)</button>
+        <button class="filter-btn high-btn" onclick="filterByConfidence(0.8)">High Confidence (≥0.8)</button>
+        <button class="filter-btn medium-btn" onclick="filterByConfidence(0.6)">Medium Confidence (0.6-0.8)</button>
+        <button class="filter-btn low-btn" onclick="filterByConfidence(0)">Low Confidence (<0.6)</button>
+    </div>
+    
+    <div id="hypothesis-container">        <div class="hypothesis-card" data-confidence="low">
+            <h3>Optogenetics reveals Hippocampus dysfunction in Amnesia</h3>
+            <p><strong>Confidence:</strong> <span style="color:red">0.54</span></p>
+            <p><strong>Feasibility:</strong> High</p>
+            <p><strong>Impact:</strong> Therapeutic</p>
+            <p>Altered Pattern Separation in Hippocampus, measured by Optogenetics, contributes to Amnesia pathology</p>
+        </div>        <div class="hypothesis-card" data-confidence="high">
+            <h3>fMRI reveals Prefrontal Cortex dysfunction in ADHD</h3>
+            <p><strong>Confidence:</strong> <span style="color:green">0.86</span></p>
+            <p><strong>Feasibility:</strong> Low</p>
+            <p><strong>Impact:</strong> Therapeutic</p>
+            <p>Altered Attention in Prefrontal Cortex, measured by fMRI, contributes to ADHD pathology</p>
+        </div>        <div class="hypothesis-card" data-confidence="medium">
+            <h3>Optogenetics reveals Prefrontal Cortex dysfunction in OCD</h3>
+            <p><strong>Confidence:</strong> <span style="color:orange">0.74</span></p>
+            <p><strong>Feasibility:</strong> Medium</p>
+            <p><strong>Impact:</strong> Diagnostic</p>
+            <p>Altered Cognitive Control in Prefrontal Cortex, measured by Optogenetics, contributes to OCD pathology</p>
+        </div>        <div class="hypothesis-card" data-confidence="medium">
+            <h3>Optogenetics reveals Prefrontal Cortex dysfunction in OCD</h3>
+            <p><strong>Confidence:</strong> <span style="color:orange">0.69</span></p>
+            <p><strong>Feasibility:</strong> Low</p>
+            <p><strong>Impact:</strong> Diagnostic</p>
+            <p>Altered Decision Making in Prefrontal Cortex, measured by Optogenetics, contributes to OCD pathology</p>
+        </div>        <div class="hypothesis-card" data-confidence="medium">
+            <h3>fMRI reveals Prefrontal Cortex dysfunction in ADHD</h3>
+            <p><strong>Confidence:</strong> <span style="color:orange">0.76</span></p>
+            <p><strong>Feasibility:</strong> Medium</p>
+            <p><strong>Impact:</strong> Therapeutic</p>
+            <p>Altered Working Memory in Prefrontal Cortex, measured by fMRI, contributes to ADHD pathology</p>
+        </div>        <div class="hypothesis-card" data-confidence="medium">
+            <h3>Optogenetics reveals Hippocampus dysfunction in Alzheimer's</h3>
+            <p><strong>Confidence:</strong> <span style="color:orange">0.7</span></p>
+            <p><strong>Feasibility:</strong> Medium</p>
+            <p><strong>Impact:</strong> Mechanistic</p>
+            <p>Altered Spatial Memory in Hippocampus, measured by Optogenetics, contributes to Alzheimer's pathology</p>
+        </div>        <div class="hypothesis-card" data-confidence="medium">
+            <h3>fMRI reveals Hippocampus dysfunction in Alzheimer's</h3>
+            <p><strong>Confidence:</strong> <span style="color:orange">0.7</span></p>
+            <p><strong>Feasibility:</strong> Medium</p>
+            <p><strong>Impact:</strong> Diagnostic</p>
+            <p>Altered Spatial Memory in Hippocampus, measured by fMRI, contributes to Alzheimer's pathology</p>
+        </div>        <div class="hypothesis-card" data-confidence="high">
+            <h3>fMRI reveals Prefrontal Cortex dysfunction in Depression</h3>
+            <p><strong>Confidence:</strong> <span style="color:green">0.8</span></p>
+            <p><strong>Feasibility:</strong> Low</p>
+            <p><strong>Impact:</strong> Therapeutic</p>
+            <p>Altered Working Memory in Prefrontal Cortex, measured by fMRI, contributes to Depression pathology</p>
+        </div>    </div>
+    
+    <script>
+        function showAll() {
+            document.querySelectorAll('.hypothesis-card').forEach(card => {
+                card.style.display = 'block';
+            });
+        }
+        
+        function filterByConfidence(minLevel) {
+            const cards = document.querySelectorAll('.hypothesis-card');
+            cards.forEach(card => {
+                const level = card.getAttribute('data-confidence');
+                const shouldShow = 
+                    (minLevel === 0 && level === 'low') ||
+                    (minLevel === 0.6 && (level === 'medium' || level === 'high')) ||
+                    (minLevel === 0.8 && level === 'high') ||
+                    (minLevel === 'all');
+                card.style.display = shouldShow ? 'block' : 'none';
+            });
+        }
+        
+        // Show all by default
+        showAll();
+    </script>
+</body>
+</html>

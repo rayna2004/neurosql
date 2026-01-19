@@ -1,0 +1,6 @@
+"ID","BrainRegion","Method","Statement","Confidence"
+"HYP1","Amygdala","EEG","EEG of Hippocampus affects learning","0.92"
+"HYP2","Amygdala","fMRI","Optogenetics of Amygdala affects emotion","0.79"
+"HYP3","Prefrontal Cortex","EEG","EEG of Prefrontal Cortex affects memory","0.76"
+"HYP4","Hippocampus","fMRI","EEG of Hippocampus affects emotion","0.88"
+"HYP5","Hippocampus","EEG","EEG of Hippocampus affects learning","0.91"

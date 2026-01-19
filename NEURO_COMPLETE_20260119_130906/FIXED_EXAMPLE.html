@@ -1,0 +1,74 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Fixed Neuroscience Dashboard</title>
+    <style>
+        body { font-family: Arial; margin: 20px; }
+        .stat-box { border: 1px solid #ccc; padding: 15px; margin: 10px; }
+    </style>
+</head>
+<body>
+    <h1>Fixed Dashboard</h1>
+    
+    <div class="stat-box">
+        <h3>Project Budget</h3>
+        <!-- FIXED: Using HTML entity for dollar sign -->
+        <div class="stat-value">&#36;0.9729M</div>
+        <p>Total estimated budget</p>
+    </div>
+    
+    <div class="stat-box">
+        <h3>Hypotheses</h3>
+        <div class="stat-value">8</div>
+        <p>Total research hypotheses</p>
+    </div>
+    
+    <h2>All Hypotheses with Fixed Colors:</h2>
+    <div id="hypotheses">        <div style="border-left: 5px solid red; padding: 10px; margin: 5px;">
+            <h3>Optogenetics reveals Hippocampus dysfunction in Amnesia</h3>
+            <p>Confidence: <span style="color:red">0.54</span></p>
+            <p>Altered Pattern Separation in Hippocampus, measured by Optogenetics, contributes to Amnesia pathology</p>
+        </div>        <div style="border-left: 5px solid green; padding: 10px; margin: 5px;">
+            <h3>fMRI reveals Prefrontal Cortex dysfunction in ADHD</h3>
+            <p>Confidence: <span style="color:green">0.86</span></p>
+            <p>Altered Attention in Prefrontal Cortex, measured by fMRI, contributes to ADHD pathology</p>
+        </div>        <div style="border-left: 5px solid orange; padding: 10px; margin: 5px;">
+            <h3>Optogenetics reveals Prefrontal Cortex dysfunction in OCD</h3>
+            <p>Confidence: <span style="color:orange">0.74</span></p>
+            <p>Altered Cognitive Control in Prefrontal Cortex, measured by Optogenetics, contributes to OCD pathology</p>
+        </div>        <div style="border-left: 5px solid orange; padding: 10px; margin: 5px;">
+            <h3>Optogenetics reveals Prefrontal Cortex dysfunction in OCD</h3>
+            <p>Confidence: <span style="color:orange">0.69</span></p>
+            <p>Altered Decision Making in Prefrontal Cortex, measured by Optogenetics, contributes to OCD pathology</p>
+        </div>        <div style="border-left: 5px solid orange; padding: 10px; margin: 5px;">
+            <h3>fMRI reveals Prefrontal Cortex dysfunction in ADHD</h3>
+            <p>Confidence: <span style="color:orange">0.76</span></p>
+            <p>Altered Working Memory in Prefrontal Cortex, measured by fMRI, contributes to ADHD pathology</p>
+        </div>        <div style="border-left: 5px solid orange; padding: 10px; margin: 5px;">
+            <h3>Optogenetics reveals Hippocampus dysfunction in Alzheimer's</h3>
+            <p>Confidence: <span style="color:orange">0.7</span></p>
+            <p>Altered Spatial Memory in Hippocampus, measured by Optogenetics, contributes to Alzheimer's pathology</p>
+        </div>        <div style="border-left: 5px solid orange; padding: 10px; margin: 5px;">
+            <h3>fMRI reveals Hippocampus dysfunction in Alzheimer's</h3>
+            <p>Confidence: <span style="color:orange">0.7</span></p>
+            <p>Altered Spatial Memory in Hippocampus, measured by fMRI, contributes to Alzheimer's pathology</p>
+        </div>        <div style="border-left: 5px solid green; padding: 10px; margin: 5px;">
+            <h3>fMRI reveals Prefrontal Cortex dysfunction in Depression</h3>
+            <p>Confidence: <span style="color:green">0.8</span></p>
+            <p>Altered Working Memory in Prefrontal Cortex, measured by fMRI, contributes to Depression pathology</p>
+        </div>    </div>
+    
+    <script>
+        // FIXED: No backticks, using string concatenation
+        const confidences = [0.54,0.86,0.74,0.69,0.76,0.7,0.7,0.8];
+        console.log('Loaded ' + confidences.length + ' confidence scores');
+        
+        // Example: Create simple labels without template literals
+        const labels = [];
+        for (let i = 0; i < confidences.length; i++) {
+            labels.push('H' + (i + 1));  // No backticks!
+        }
+        console.log('Labels:', labels);
+    </script>
+</body>
+</html>

@@ -1,0 +1,99 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>JS-Safe Neuroscience Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: Arial; margin: 20px; }
+        .hypothesis { border: 1px solid #ccc; padding: 15px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>JS-Safe Dashboard</h1>
+    
+    <div id="stats">
+        <!-- We'll inject stats here with JavaScript -->
+        Loading statistics...
+    </div>
+    
+    <div id="hypotheses">
+        Loading hypotheses...
+    </div>
+    
+    <script>
+        // Data injected by PowerShell
+        const hypothesesData = [            {
+                id: "' + $hyp.ID + '",
+                title: "' + $hyp.Title.Replace('"', '\"') + '",
+                confidence: ' + $hyp.Confidence + ',
+                feasibility: "' + $hyp.Feasibility + '",
+                impact: "' + $hyp.Impact + '",
+                statement: "' + $hyp.Statement.Replace('"', '\"') + '"
+            },            {
+                id: "' + $hyp.ID + '",
+                title: "' + $hyp.Title.Replace('"', '\"') + '",
+                confidence: ' + $hyp.Confidence + ',
+                feasibility: "' + $hyp.Feasibility + '",
+                impact: "' + $hyp.Impact + '",
+                statement: "' + $hyp.Statement.Replace('"', '\"') + '"
+            },            {
+                id: "' + $hyp.ID + '",
+                title: "' + $hyp.Title.Replace('"', '\"') + '",
+                confidence: ' + $hyp.Confidence + ',
+                feasibility: "' + $hyp.Feasibility + '",
+                impact: "' + $hyp.Impact + '",
+                statement: "' + $hyp.Statement.Replace('"', '\"') + '"
+            },            {
+                id: "' + $hyp.ID + '",
+                title: "' + $hyp.Title.Replace('"', '\"') + '",
+                confidence: ' + $hyp.Confidence + ',
+                feasibility: "' + $hyp.Feasibility + '",
+                impact: "' + $hyp.Impact + '",
+                statement: "' + $hyp.Statement.Replace('"', '\"') + '"
+            },            {
+                id: "' + $hyp.ID + '",
+                title: "' + $hyp.Title.Replace('"', '\"') + '",
+                confidence: ' + $hyp.Confidence + ',
+                feasibility: "' + $hyp.Feasibility + '",
+                impact: "' + $hyp.Impact + '",
+                statement: "' + $hyp.Statement.Replace('"', '\"') + '"
+            },            {
+                id: "' + $hyp.ID + '",
+                title: "' + $hyp.Title.Replace('"', '\"') + '",
+                confidence: ' + $hyp.Confidence + ',
+                feasibility: "' + $hyp.Feasibility + '",
+                impact: "' + $hyp.Impact + '",
+                statement: "' + $hyp.Statement.Replace('"', '\"') + '"
+            },            {
+                id: "' + $hyp.ID + '",
+                title: "' + $hyp.Title.Replace('"', '\"') + '",
+                confidence: ' + $hyp.Confidence + ',
+                feasibility: "' + $hyp.Feasibility + '",
+                impact: "' + $hyp.Impact + '",
+                statement: "' + $hyp.Statement.Replace('"', '\"') + '"
+            },            {
+                id: "' + $hyp.ID + '",
+                title: "' + $hyp.Title.Replace('"', '\"') + '",
+                confidence: ' + $hyp.Confidence + ',
+                feasibility: "' + $hyp.Feasibility + '",
+                impact: "' + $hyp.Impact + '",
+                statement: "' + $hyp.Statement.Replace('"', '\"') + '"
+            }        ];
+        
+        // Render data with pure JavaScript (no PowerShell interpolation issues)
+        document.getElementById('stats').innerHTML = 
+            '<h3>' + hypothesesData.length + ' Hypotheses Loaded</h3>';
+            
+        let html = '';
+        hypothesesData.forEach(hyp => {
+            html += '<div class="hypothesis">';
+            html += '<h3>' + hyp.title + '</h3>';
+            html += '<p>Confidence: ' + hyp.confidence + '</p>';
+            html += '<p>Feasibility: ' + hyp.feasibility + '</p>';
+            html += '</div>';
+        });
+        
+        document.getElementById('hypotheses').innerHTML = html;
+    </script>
+</body>
+</html>
